@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+
+require 'pathname'
+ROOT_DIR = Pathname.new(__FILE__).dirname.parent
+load ROOT_DIR.join('lib/cindy.rb')
+load ROOT_DIR.join('lib/cindy/cli.rb')
+
+require 'readline'
+require 'shellwords'
+
+$VERBOSE = true
+
+=begin
+Readline.completion_proc = proc do |s|
+    #
+end
+=end
+
+cli = Cindy::CLI.new
+if ARGV.any?
+    cli.parse ARGV
+else
+    while line = Readline.readline('> ', true)
+        begin
+            cli.parse Shellwords.split(line)
+        rescue Cindy::CLI::UnexpectedArgumentError => e
+            puts "[ ERR ] #{e}"
+        end
+    end
+end
