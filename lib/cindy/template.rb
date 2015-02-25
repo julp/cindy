@@ -25,6 +25,7 @@ module Cindy
             @defvars.each_pair do |k,v|
                 tpltag << vartag = REXML::Element.new(Variable::TAG_NAME)
                 vartag.text = v
+                vartag.attributes['name'] = k
                 case v
                     when TrueClass, FalseClass
                         vartag.attributes['type'] = 'boolean'
@@ -39,6 +40,7 @@ module Cindy
                 @envvars[ke].each_pair do |kv,vv|
                     ontag << vartag = REXML::Element.new(Variable::TAG_NAME)
                     vartag.text = vv
+                    vartag.attributes['name'] = kv
                     case vv
                         when TrueClass, FalseClass
                             vartag.attributes['type'] = 'boolean'
@@ -83,7 +85,7 @@ module Cindy
                         tpl.paths[p.attributes['environment']] = p.attributes['path']
                         tpl.envvars[p.attributes['environment']] = {}
                         p.elements.each('variable') do |v|
-                            tpl.envvars[p.attributes['environment']].update v.attributes['name'] => Variable.send(:"parse_#{v.attributes['type']}", v.text)
+                            tpl.envvars[p.attributes['environment']][v.attributes['name']] = Variable.send(:"parse_#{v.attributes['type']}", v.text)
                         end
                     end
                 end
@@ -116,7 +118,7 @@ private
                     end
                 end
             ]
-            erb = ERB.new(File.read(self.file), 0, '-')
+            erb = ERB.new(File.read(@file), 0, '-')
             executor.close if close_executor
             erb.result(OpenStruct.new(vars).instance_eval { binding })
         end
