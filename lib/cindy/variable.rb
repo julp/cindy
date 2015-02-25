@@ -19,5 +19,10 @@ module Cindy
                 string.to_i
             end
         end
+
+        TYPES = public_methods.inject([]) do |ret,v|
+            ret << $' if v =~ /\Aparse_/
+            ret
+        end
     end
 end
