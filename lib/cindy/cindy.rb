@@ -28,7 +28,9 @@ module Cindy
             @templates.each_value do |tpl|
                 tpl.to_xml root
             end
-            doc.write File.open filename, 'w'
+            formatter = REXML::Formatters::Pretty.new 4
+            formatter.compact = true
+            formatter.write doc, File.open(filename, 'w')
         end
 
         def environments
