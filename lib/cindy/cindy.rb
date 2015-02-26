@@ -72,5 +72,10 @@ module Cindy
         def environment_template_variables(envname, tplname)
             @templates[tplname].list_variables(@environments[envname])
         end
+
+        def template_variable_delete(tplname, varname)
+            @templates[tplname].delete_variable varname
+            save CONFIGURATION_FILE
+        end
     end
 end

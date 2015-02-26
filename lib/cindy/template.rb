@@ -73,6 +73,13 @@ module Cindy
             end
         end
 
+        def delete_variable(varname)
+            @defvars.delete varname
+            @envvars.each_value do |h|
+                h.delete varname
+            end
+        end
+
         class << self
             def from_xml(templates, root)
                 root.elements.each(TAG_NAME) do |node|

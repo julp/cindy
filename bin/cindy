@@ -20,7 +20,7 @@ cli = Cindy::CLI.new
 if ARGV.any?
     cli.parse ARGV
 else
-    while line = Readline.readline('> ', true)
+    while line = Readline.readline('# ', true)
         begin
             cli.parse Shellwords.split(line)
         rescue Cindy::CLI::UnexpectedArgumentError => e
