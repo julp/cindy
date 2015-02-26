@@ -114,7 +114,7 @@ private
         end
 
         def render(env, executor = nil)
-            close_executor = !!executor
+            close_executor = executor.nil?
             executor ||= executor_for_env(env)
             vars = Hash[
                 @defvars.merge(@envvars[env.name]).map do |k, v|
