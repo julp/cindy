@@ -41,7 +41,7 @@ module Cindy
         def parse(args)
             arg = args.shift
             case arg
-            when 'environment'
+            when 'environment', 'env'
                 arg = args.shift
                 case
                 when 'list' == arg # OK
@@ -64,7 +64,7 @@ module Cindy
                         raise InvalidArgumentError.new arg, %w(delete)
                     end
                 end
-            when 'template'
+            when 'template', 'tpl'
                 arg = args.shift
                 case arg
                 when 'list' # OK
@@ -83,7 +83,7 @@ module Cindy
                     when 'delete' # OK
                         # assert 0 == args.length
                         @cindy.template_delete tplname
-                    when 'variable'
+                    when 'variable', 'var'
                         # assert args.length >= 2
                         varname = args.shift
                         arg = args.shift
@@ -98,12 +98,12 @@ module Cindy
                         else
                             raise InvalidArgumentError.new arg, %w(unset)
                         end
-                    when 'environment'
+                    when 'environment', 'env'
                         # assert args.length >= 2
                         envname = args.shift
                         arg = args.shift
                         case arg
-                        when 'variable'
+                        when 'variable', 'var'
                             # assert args.length >= 1
                             arg = args.shift
                             case arg
