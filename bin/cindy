@@ -1,9 +1,13 @@
 #!/usr/bin/env ruby
 
-require 'pathname'
-ROOT_DIR = Pathname.new(__FILE__).dirname.parent
-load ROOT_DIR.join('lib/cindy.rb')
-load ROOT_DIR.join('lib/cindy/cli.rb')
+begin
+  require 'rubygems'
+  gem 'cindy'
+rescue LoadError
+end
+
+require 'cindy'
+require 'cindy/cli'
 
 require 'readline'
 require 'shellwords'

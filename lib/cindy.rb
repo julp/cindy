@@ -1,14 +1,11 @@
 module Cindy
 end
 
-load_dir = Pathname.new(__FILE__).dirname
-
-load load_dir.join('cindy/version.rb')
-load load_dir.join('cindy/cindy.rb')
-load load_dir.join('cindy/command.rb')
-load load_dir.join('cindy/environment.rb')
-load load_dir.join('cindy/variable.rb')
-load load_dir.join('cindy/template.rb')
-
-load load_dir.join('cindy/executor/ssh.rb')
-load load_dir.join('cindy/executor/local.rb')
+require 'cindy/version.rb'
+require 'cindy/cindy.rb'
+require 'cindy/command.rb'
+require 'cindy/environment.rb'
+require 'cindy/variable.rb'
+require 'cindy/template.rb'
+require 'cindy/executor/ssh.rb'
+require 'cindy/executor/local.rb'
