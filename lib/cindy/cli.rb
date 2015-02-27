@@ -90,7 +90,11 @@ module Cindy
                         case arg
                         when 'unset'
                             # assert 0 == args.length
-                            @cindy.template_variable_delete tplname, varname
+                            @cindy.template_variable_unset tplname, varname
+                        when 'set', '='
+                            # assert args.length >= 1 && args.length <= 3
+                            raise InvalidArgumentError.new args[1], 'typed' if args.length > 1 && 'typed' != args[1]
+                            @cindy.template_variable_set tplname, varname, args[0], args[2]
                         else
                             raise InvalidArgumentError.new arg, %w(unset)
                         end

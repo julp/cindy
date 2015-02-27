@@ -73,8 +73,17 @@ module Cindy
             @templates[tplname].list_variables(@environments[envname])
         end
 
-        def template_variable_delete(tplname, varname)
-            @templates[tplname].delete_variable varname
+        def template_variable_unset(tplname, varname)
+            @templates[tplname].unset_variable varname
+            save CONFIGURATION_FILE
+        end
+
+        def template_variable_set(tplname, varname, value, type)
+            template_environment_variable_set nil, tplname, varname, value, type
+        end
+
+        def template_environment_variable_set(envname, tplname, varname, value, type)
+            @templates[tplname].set_variable @environments[envname], varname, value, type
             save CONFIGURATION_FILE
         end
     end

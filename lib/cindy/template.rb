@@ -73,10 +73,19 @@ module Cindy
             end
         end
 
-        def delete_variable(varname)
+        def unset_variable(varname)
             @defvars.delete varname
             @envvars.each_value do |h|
                 h.delete varname
+            end
+        end
+
+        def set_variable(env, varname, value, type)
+            type ||= 'string'
+            if env
+                @envvars[env.name][varname] = Variable.send(:"parse_#{type}", value)
+            else
+                @defvars[varname] = Variable.send(:"parse_#{type}", value)
             end
         end
 
