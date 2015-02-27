@@ -44,7 +44,7 @@ module Cindy
             when 'environment', 'env'
                 arg = args.shift
                 case
-                when 'list' == arg # OK
+                when 'list' == arg
                     # assert 0 == args.length
                     @cindy.environments.each do |env|
                         puts "- #{env.name}: #{env.uri}"
@@ -57,7 +57,7 @@ module Cindy
                     envname = arg
                     arg = args.shift
                     case
-                    when 'delete' == arg # OK
+                    when 'delete' == arg
                         # assert 0 == args.length
                         @cindy.environment_delete envname
                     else
@@ -67,12 +67,12 @@ module Cindy
             when 'template', 'tpl'
                 arg = args.shift
                 case arg
-                when 'list' # OK
+                when 'list'
                     # assert 0 == args.length
                     @cindy.templates.each do |tpl|
                         puts "> #{tpl.alias || '(none)'}: #{tpl.file}"
                     end
-                when 'add' # OK
+                when 'add'
                     # assert 3 == args.length
                     raise InvalidArgumentError.new args[1], 'as' unless 'as' == args[1]
                     @cindy.template_add args[0], args[2]
@@ -80,7 +80,7 @@ module Cindy
                     tplname = arg
                     arg = args.shift
                     case arg
-                    when 'delete' # OK
+                    when 'delete'
                         # assert 0 == args.length
                         @cindy.template_delete tplname
                     when 'variable', 'var'
@@ -107,13 +107,22 @@ module Cindy
                             # assert args.length >= 1
                             arg = args.shift
                             case arg
-                            when 'list' # OK
+                            when 'list'
                                 # assert 0 == args.length
                                 @cindy.environment_template_variables(envname, tplname)
                             else
-                                raise InvalidArgumentError.new arg, %w(list)
+                                varname = arg
+                                arg = args.shift
+                                case arg
+                                when 'set', '='
+                                    # assert args.length >= 1 && args.length <= 3
+                                    raise InvalidArgumentError.new args[1], 'typed' if args.length > 1 && 'typed' != args[1]
+                                    @cindy.template_environment_variable_set envname, tplname, varname, args[0], args[2]
+                                else
+                                    raise InvalidArgumentError.new arg, %w(list set)
+                                end
                             end
-                        when 'deploy', 'print' # OK
+                        when 'deploy', 'print'
                             # assert 0 == args.length
                             @cindy.send(:"environment_#{arg}_template", envname, tplname)
                         else
