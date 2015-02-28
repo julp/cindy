@@ -109,7 +109,7 @@ module Cindy
                             case arg
                             when 'list'
                                 # assert 0 == args.length
-                                @cindy.environment_template_variables(envname, tplname)
+                                @cindy.template_environment_variables(envname, tplname)
                             else
                                 varname = arg
                                 arg = args.shift
@@ -124,7 +124,7 @@ module Cindy
                             end
                         when 'deploy', 'print'
                             # assert 0 == args.length
-                            @cindy.send(:"environment_#{arg}_template", envname, tplname)
+                            @cindy.send(:"template_environment_#{arg}", envname, tplname)
                         else
                             raise InvalidArgumentError.new arg, %w(variable deploy print)
                         end

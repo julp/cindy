@@ -61,15 +61,15 @@ module Cindy
             save CONFIGURATION_FILE
         end
 
-        def environment_print_template(envname, tplname)
+        def template_environment_print(envname, tplname)
             @templates[tplname].print(@environments[envname])
         end
 
-        def environment_deploy_template(envname, tplname)
+        def template_environment_deploy(envname, tplname)
             @templates[tplname].deploy(@environments[envname])
         end
 
-        def environment_template_variables(envname, tplname)
+        def template_environment_variables(envname, tplname)
             @templates[tplname].list_variables(@environments[envname])
         end
 
