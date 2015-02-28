@@ -89,6 +89,11 @@ module Cindy
             end
         end
 
+        def set_path_for_environment(env, path)
+            @paths[env.name] = path
+            @envvars[env.name] ||= {}
+        end
+
         class << self
             def from_xml(templates, root)
                 root.elements.each(TAG_NAME) do |node|

@@ -122,6 +122,10 @@ module Cindy
                                     raise InvalidArgumentError.new arg, %w(list set)
                                 end
                             end
+                        when 'path'
+                            # assert 2 == args.length
+                            raise InvalidArgumentError.new args[0], '=' unless '=' == args[0]
+                            @cindy.template_environment_path envname, tplname, args[1]
                         when 'deploy', 'print'
                             # assert 0 == args.length
                             @cindy.send(:"template_environment_#{arg}", envname, tplname)

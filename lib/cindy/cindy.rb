@@ -97,6 +97,13 @@ module Cindy
             save CONFIGURATION_FILE
         end
 
+        def template_environment_path(envname, tplname, path)
+            check_environment! envname
+            check_template! tplname
+            @templates[tplname].set_path_for_environment @environments[envname], path
+            save CONFIGURATION_FILE
+        end
+
 private
 
         def check_environment!(envname)
