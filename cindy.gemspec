@@ -12,9 +12,10 @@ Gem::Specification.new do |s|
     s.license = 'BSD'
     s.files = `git ls-files -z`.split("\x0")
     s.executables = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
-    s.require_paths = %w(lib)
+    #s.require_paths = %w(lib)
     s.required_ruby_version = '>= 2.0.0'
     s.add_dependency 'net-ssh'
+    s.add_dependency 'highline'
     s.add_development_dependency 'bundler'
     s.add_development_dependency 'rake'
 end
