@@ -2,6 +2,7 @@ require 'rexml/document'
 
 module Cindy
     class Cindy
+
         CONFIGURATION_FILE = File.expand_path('~/.cindy')
 
         def initialize
@@ -62,18 +63,25 @@ module Cindy
         end
 
         def template_environment_print(envname, tplname)
+            check_environment! envname
+            check_template! tplname
             @templates[tplname].print(@environments[envname])
         end
 
         def template_environment_deploy(envname, tplname)
+            check_environment! envname
+            check_template! tplname
             @templates[tplname].deploy(@environments[envname])
         end
 
         def template_environment_variables(envname, tplname)
+            check_environment! envname
+            check_template! tplname
             @templates[tplname].list_variables(@environments[envname])
         end
 
         def template_variable_unset(tplname, varname)
+            check_template! tplname
             @templates[tplname].unset_variable varname
             save CONFIGURATION_FILE
         end
@@ -83,8 +91,21 @@ module Cindy
         end
 
         def template_environment_variable_set(envname, tplname, varname, value, type)
+            check_environment! envname if envname
+            check_template! tplname
             @templates[tplname].set_variable @environments[envname], varname, value, type
             save CONFIGURATION_FILE
         end
+
+private
+
+        def check_environment!(envname)
+            raise NameError.new "call to an undefined environment: #{envname}" unless @environments[envname]
+        end
+
+        def check_template!(tplname)
+            raise NameError.new "call to an undefined template: #{tplname}" unless @templates[tplname]
+        end
+
     end
 end
