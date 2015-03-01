@@ -1,6 +1,13 @@
 require 'rexml/document'
 
 module Cindy
+
+    class UndefinedEnvironmentError < ::NameError
+    end
+
+    class UndefinedTemplateError < ::NameError
+    end
+
     class Cindy
 
         CONFIGURATION_FILE = File.expand_path('~/.cindy')
@@ -114,11 +121,11 @@ module Cindy
 private
 
         def check_environment!(envname)
-            raise NameError.new "call to an undefined environment: #{envname}" unless @environments[envname]
+            raise UndefinedEnvironmentError.new "call to an undefined environment: #{envname}" unless @environments[envname]
         end
 
         def check_template!(tplname)
-            raise NameError.new "call to an undefined template: #{tplname}" unless @templates[tplname]
+            raise UndefinedTemplateError.new "call to an undefined template: #{tplname}" unless @templates[tplname]
         end
 
     end

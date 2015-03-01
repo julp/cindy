@@ -1,12 +1,6 @@
 #!/usr/bin/env ruby
 
-begin
-  require 'rubygems'
-  gem 'cindy'
-rescue LoadError
-end
-
-require 'cindy'
+require 'cindy/all'
 require 'cindy/cli'
 
 require 'readline'
@@ -20,6 +14,8 @@ Readline.completion_proc = proc do |s|
 end
 =end
 
+CINDY_EXCEPTIONS = ObjectSpace.each_object(Class).select { |v| v.ancestors.include?(Exception) && 'Cindy' == v.name.split('::').first }
+
 cli = Cindy::CLI.new
 if ARGV.any?
     cli.parse ARGV
@@ -27,7 +23,8 @@ else
     while line = Readline.readline('# ', true)
         begin
             cli.parse Shellwords.split(line)
-        rescue Cindy::CLI::UnexpectedArgumentError => e
+        rescue => e
+            raise unless CINDY_EXCEPTIONS.include? e.class
             puts "[ ERR ] #{e}"
         end
     end
