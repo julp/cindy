@@ -86,6 +86,12 @@ module Cindy
             save CONFIGURATION_FILE
         end
 
+        def template_variable_rename(tplname, oldvarname, newvarname)
+            check_template! tplname
+            @templates[tplname].rename_variable oldvarname, newvarname
+            save CONFIGURATION_FILE
+        end
+
         def template_variable_set(tplname, varname, value, type)
             template_environment_variable_set nil, tplname, varname, value, type
         end
@@ -93,6 +99,7 @@ module Cindy
         def template_environment_variable_set(envname, tplname, varname, value, type)
             check_environment! envname if envname
             check_template! tplname
+            STDERR.puts "[ WARN ] non standard variable name found" unless varname =~ /\A[a-z][a-z0-9_]*\z/
             @templates[tplname].set_variable @environments[envname], varname, value, type
             save CONFIGURATION_FILE
         end

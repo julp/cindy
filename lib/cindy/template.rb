@@ -80,6 +80,13 @@ module Cindy
             end
         end
 
+        def rename_variable(oldvarname, newvarname)
+            @defvars[newvarname] = value if value = @defvars.delete(oldvarname)
+            @envvars.each_value do |h|
+                h[newvarname] = value if value = h.delete(oldvarname)
+            end
+        end
+
         def set_variable(env, varname, value, type)
             type ||= 'string'
             if env

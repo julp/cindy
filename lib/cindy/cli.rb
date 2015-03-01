@@ -95,8 +95,12 @@ module Cindy
                             # assert args.length >= 1 && args.length <= 3
                             raise InvalidArgumentError.new args[1], 'typed' if args.length > 1 && 'typed' != args[1]
                             @cindy.template_variable_set tplname, varname, args[0], args[2]
+                        when 'rename'
+                            # assert 2 == args.length
+                            raise InvalidArgumentError.new args[0], 'to' unless 'to' == args[0]
+                            @cindy.template_variable_rename tplname, varname, args[1]
                         else
-                            raise InvalidArgumentError.new arg, %w(unset)
+                            raise InvalidArgumentError.new arg, %w(unset set rename)
                         end
                     when 'environment', 'env'
                         # assert args.length >= 2
