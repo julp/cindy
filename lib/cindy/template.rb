@@ -146,6 +146,9 @@ private
                     end
                 end
             ]
+            # ||= to not overwrite a previously user defined variable with the same name
+            vars['_install_file_'] ||= @paths[env.name]
+            vars['_install_dir_'] ||= File.dirname @paths[env.name]
             erb = ERB.new(File.read(@file), 0, '-')
             executor.close if close_executor
             erb.result(OpenStruct.new(vars).instance_eval { binding })
