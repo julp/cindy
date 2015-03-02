@@ -63,7 +63,7 @@ module Cindy
                 when 'list'
                     # assert 0 == args.length
                     @cindy.templates.each do |tpl|
-                        puts "> #{tpl.alias || '(none)'}: #{tpl.file}"
+                        puts "> #{tpl.alias}: #{tpl.file}"
                     end
                 when 'add'
                     # assert 3 == args.length
