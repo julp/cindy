@@ -1,10 +1,3 @@
-# @dev
-module Kernel
-    def debug *args
-        self.send(:printf, *args) if $VERBOSE # ajouter -v à la ligne de commande pour passer en verbose
-    end
-end
-
 module Cindy
     class CLI
         class InvalidArgumentError < ::ArgumentError

@@ -6,8 +6,6 @@ require 'cindy/cli'
 require 'readline'
 require 'shellwords'
 
-$VERBOSE = true
-
 =begin
 Readline.completion_proc = proc do |s|
     #
