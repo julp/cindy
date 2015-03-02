@@ -31,20 +31,24 @@ module Cindy
 #             raise (given > expected ? TooManyArgumentError : TooFewArgumentError).new unless given.send(method, expected)
 #         end
 
+        TEMPLATE_UPDATE_ARGS = %w(name file)
+        ENVIRONMENT_UPDATE_ARGS = %w(name uri)
+
         def parse(args)
             arg = args.shift
             case arg
             when 'environment', 'env'
                 arg = args.shift
-                case
-                when 'list' == arg
+                case arg
+                when 'list'
                     # assert 0 == args.length
                     @cindy.environments.each do |env|
                         puts "- #{env.name}: #{env.uri}"
                     end
-                when %w(create update).include?(arg) # TODO
-                    # assert(2 == args.length)
-                    @cindy.send(:"environment_#{arg}", *args)
+                when 'create'
+                    # assert 2 == args.length
+                    raise InvalidArgumentError.new args[1], 'as' unless 'as' == args[1]
+                    @cindy.environment_create args[2], args[0]
                 else
                     # assert args.length >= 2
                     envname = arg
@@ -53,8 +57,16 @@ module Cindy
                     when 'delete' == arg
                         # assert 0 == args.length
                         @cindy.environment_delete envname
+                    when 'update'
+                        # assert args.length >= 3 && 0 == args.length % 3
+                        params = args.each_slice(3).inject({}) do |ret,a|
+                            raise InvalidArgumentError.new a[0], ENVIRONMENT_UPDATE_ARGS unless ENVIRONMENT_UPDATE_ARGS.include? a[0]
+                            raise InvalidArgumentError.new a[1], '=' unless '=' == a[1]
+                            ret.update a[0] => a[2]
+                        end
+                        @cindy.environment_update envname, params
                     else
-                        raise InvalidArgumentError.new arg, %w(delete)
+                        raise InvalidArgumentError.new arg, %w(delete update)
                     end
                 end
             when 'template', 'tpl'
@@ -76,6 +88,14 @@ module Cindy
                     when 'delete'
                         # assert 0 == args.length
                         @cindy.template_delete tplname
+                    when 'update'
+                        # assert args.length >= 3 && 0 == args.length % 3
+                        params = args.each_slice(3).inject({}) do |ret,a|
+                            raise InvalidArgumentError.new a[0], TEMPLATE_UPDATE_ARGS unless TEMPLATE_UPDATE_ARGS.include? a[0]
+                            raise InvalidArgumentError.new a[1], '=' unless '=' == a[1]
+                            ret.update a[0] => a[2]
+                        end
+                        @cindy.template_update tplname, params
                     when 'variable', 'var'
                         # assert args.length >= 2
                         varname = args.shift
@@ -130,7 +150,7 @@ module Cindy
                             raise InvalidArgumentError.new arg, %w(variable deploy print)
                         end
                     else
-                        raise InvalidArgumentError.new arg, %w(environment delete variable environment)
+                        raise InvalidArgumentError.new arg, %w(environment delete update variable environment)
                     end
                 end
             else

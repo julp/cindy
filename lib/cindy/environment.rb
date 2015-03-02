@@ -17,6 +17,11 @@ module Cindy
             envtag.attributes['uri'] = self.uri
         end
 
+        def update(attributes)
+            @uri = attributes['uri'] if attributes['uri']
+            @name = attributes['name'] if attributes['name']
+        end
+
         class << self
             def from_xml(environments, root)
                 root.elements.each(TAG_NAME) do |env|

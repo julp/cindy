@@ -51,6 +51,16 @@ module Cindy
             end
         end
 
+        def environment_name_updated(oldname, newname)
+            @paths[newname] = @paths.delete(oldname) if @paths.key? oldname
+            @envvars[newname] = @envvars.delete(oldname) if @envvars.key? oldname
+        end
+
+        def update(attributes)
+            @file = attributes['file'] if attributes['file']
+            @alias = attributes['name'] if attributes['name']
+        end
+
         def print(env)
             puts render(env)
         end

@@ -8,6 +8,9 @@ module Cindy
     class UndefinedTemplateError < ::NameError
     end
 
+    class AlreadyExistsError < ::NameError
+    end
+
     class Cindy
 
         CONFIGURATION_FILE = File.expand_path('~/.cindy')
@@ -51,7 +54,20 @@ module Cindy
         end
 
         def environment_create(name, properties)
+            # assert !@environments.key? name
             @environments[name] = Environment.new(name, properties)
+            save CONFIGURATION_FILE
+        end
+
+        def environment_update(name, attributes)
+            raise AlreadyExistsError.new "an environment named '#{attributes['name']}' already exists" if attributes.key?('name') && @environments.key?(attributes['name'])
+            check_environment! name
+            @environments[name].update attributes
+            if attributes.key? 'name'
+                @templates.each_value do |tpl|
+                    tpl.environment_name_updated name, attributes['name']
+                end
+            end
             save CONFIGURATION_FILE
         end
 
@@ -60,7 +76,15 @@ module Cindy
         end
 
         def template_add(file, name)
+            # assert !@templates.key? name
             @templates[name] = Template.new File.expand_path(file), name
+            save CONFIGURATION_FILE
+        end
+
+        def template_update(name, attributes)
+            raise AlreadyExistsError.new "a template named '#{attributes['name']}' already exists" if attributes.key?('name') && @templates.key?(attributes['name'])
+            check_template! name
+            @templates[name].update attributes
             save CONFIGURATION_FILE
         end
 
