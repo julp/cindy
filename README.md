@@ -10,15 +10,15 @@ Dependencies: net-ssh, highline
 
 `gem install cindy-cm`
 
-## Available commands
+## Usage
 
-* environment
+* environment (shortcut: env)
     * list                                                              => list all known environments
     * create \<uri> as \<name>                                          => register a new environment
     * \<name>
         * update name = \<new name> and/or uri = \<new uri>             => modify environment named *name*, renaming it and/or changing its uri
         * delete                                                        => remove environment named *name*
-* template
+* template (shortcut: tpl)
     * list                                                              => list all known templates
     * add \<file> as \<name>                                            => register template *file* with the mnemonic *name*
     * \<name>
@@ -28,7 +28,7 @@ Dependencies: net-ssh, highline
             * deploy                                                    => install the generated file on the given environment
             * print                                                     => display output configuration file as it would be deployed on the given environment
             * path = \<path>                                            => define path under which rendered output should be installed for the given environment
-            * variable
+            * variable (shortcut: var)
                 * list                                                  => list all applicable variables to the given template, their values and scopes
                 * \<name>
                     * set|= \<value> (typed boolean|string|command|int) => (re)define a variable at environment level
@@ -108,9 +108,34 @@ lrwxrwxrwx [...] /usr/local/etc/nginx.conf -> /usr/local/etc/nginx.conf.20150226
 -rw-r--r-- [...] /usr/local/etc/nginx.conf.201502262311                              # current version (1h02m later)
 ```
 
+Notes:
+* if the value contains spaces, you have to surround it by quotes
+* if you pass directly your command as arguments to cindy, shell variables will be substitued but this would not be the case if cindy is used
+as a shell. Eg:
+```
+cindy tpl add $HOME/cindy/templates/nginx.conf.tpl as nginx # cindy will register /home/julp/cindy/templates/nginx.conf.tpl
+# but
+cindy
+tpl add $HOME/cindy/templates/nginx.conf.tpl as nginx # cindy will register the result of `pwd`/\$HOME/cindy/templates/nginx.conf.tpl
+```
+
+## What is a *command* typed variable?
+
+It is a kind of dynamic variable: instead of hardcoding a value which depends on the remote host, we execute the associated command before each
+time the template is rendered. It is more convenient mainly if this value can change at any time.
+
+The result of the command is a boolean based on its exit status (0 => true, everithing else => false) if the command does not print anything on
+standard output else a string with the content of standard output.
+
+In the example above, `nginx -V 2>&1 >/dev/null | grep -qF -- --with-http_gzip_static_module` is intended to determine if nginx, on the remote
+server, is compiled or not with the gzip_static module.
+
+As you can see in this same example, note that commands may depend on the "remote shell" (redirections in particular) and also on the PATH environment
+variable.
+
 ## Limitations
 
-* `sudo` prompt to ask passwords is not handled (use a passwordless configuration)
+* `sudo` prompt to ask passwords is not handled: use a passwordless configuration
 * you need to configure your ssh keys in `~/.ssh/config`, eg:
 
 ```
