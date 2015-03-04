@@ -13,45 +13,47 @@ module Cindy
 
         CONFIGURATION_FILE = File.expand_path('~/.cindy2')
 
-        class TemplateEnvironmentNode
-            def initialize(tpl, envname)
-                @tpl = tpl
-                @envname = envname
+        module DSL
+            class TemplateEnvironmentNode
+                def initialize(tpl, envname)
+                    @tpl = tpl
+                    @envname = envname
+                end
+
+                def var(varname, value)
+                    @tpl.set_variable @envname, varname, value, nil
+                end
             end
 
-            def var(varname, value)
-                @tpl.set_variable @envname, varname, value, nil
-            end
-        end
+            class TemplateNode
+                def initialize(tpl)
+                    @tpl = tpl
+                end
 
-        class TemplateNode
-            def initialize(tpl)
-                @tpl = tpl
-            end
+                def var(varname, value)
+                    @tpl.set_variable nil, varname, value, nil
+                end
 
-            def var(varname, value)
-                @tpl.set_variable nil, varname, value, nil
-            end
-
-            def on(envname, file, &block)
-                @tpl.set_path_for_environment envname, file
-                TemplateEnvironmentNode.new(@tpl, envname).instance_eval &block
-            end
-        end
-
-        class CindyNode
-            def initialize(cindy)
-                @cindy = cindy
+                def on(envname, file, &block)
+                    @tpl.set_path_for_environment envname, file
+                    TemplateEnvironmentNode.new(@tpl, envname).instance_eval &block
+                end
             end
 
-            def template(name, path, &block)
-                tpl = @cindy.template_add path, name
-                TemplateNode.new(tpl).instance_eval &block
-                tpl
-            end
+            class CindyNode
+                def initialize(cindy)
+                    @cindy = cindy
+                end
 
-            def environment(name, uri = nil)
-                @cindy.environment_create name, uri
+                def template(name, path, &block)
+                    tpl = @cindy.template_add path, name
+                    TemplateNode.new(tpl).instance_eval &block
+                    tpl
+                end
+
+                def environment(name, uri = nil)
+                    @cindy.environment_create name, uri
+                end
             end
         end
 
@@ -62,7 +64,7 @@ module Cindy
 
         def self.load
             cindy = Cindy.new
-            CindyNode.new(cindy).instance_eval(File.read(CONFIGURATION_FILE), File.basename(CONFIGURATION_FILE), 0)
+            DSL::CindyNode.new(cindy).instance_eval(File.read(CONFIGURATION_FILE), File.basename(CONFIGURATION_FILE), 0)
             cindy
         end
 
