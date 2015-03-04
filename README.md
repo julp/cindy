@@ -134,6 +134,11 @@ server, is compiled or not with the gzip_static module.
 As you can see in this same example, note that commands may depend on the "remote shell" (redirections in particular) and also on the PATH environment
 variable.
 
+## Predefined variables
+
+* `_install_dir_`: directory in which output file will be deployed (equivalent to `File.dirname _install_file_` but more convenient)
+* `_install_file_`: filename under which the file will be deployed
+
 ## Limitations
 
 * `sudo` prompt to ask passwords is not handled: use a passwordless configuration
