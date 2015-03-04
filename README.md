@@ -12,6 +12,7 @@ Dependencies: net-ssh, highline
 
 ## Usage
 
+* reload                                                                => force Cindy to reload its configuration file
 * environment (shortcut: env)
     * list                                                              => list all known environments
     * create \<uri> as \<name>                                          => register a new environment

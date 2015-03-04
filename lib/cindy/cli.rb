@@ -27,6 +27,14 @@ module Cindy
             @cindy = Cindy.new
         end
 
+        def environments
+            @cindy.environments.map { |v| v.name.to_s }
+        end
+
+        def templates
+            @cindy.templates.map { |v| v.alias.to_s }
+        end
+
 #         def check_args_count(given, expected, method = :"==")
 #             raise (given > expected ? TooManyArgumentError : TooFewArgumentError).new unless given.send(method, expected)
 #         end
@@ -37,6 +45,9 @@ module Cindy
         def parse(args)
             arg = args.shift
             case arg
+            when 'reload'
+                # assert 0 == args.length
+                @cindy = Cindy.new
             when 'environment', 'env'
                 arg = args.shift
                 case arg
@@ -154,7 +165,7 @@ module Cindy
                     end
                 end
             else
-                raise InvalidArgumentError.new arg, %w(environment template)
+                raise InvalidArgumentError.new arg, %w(reload environment template)
             end
         end
     end
