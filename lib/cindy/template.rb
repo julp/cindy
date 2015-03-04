@@ -77,9 +77,9 @@ module Cindy
             executor.close
         end
 
-        def list_variables(env)
-            @defvars.merge(@envvars[env.name]).each_pair do |k,v|
-                puts "- #{k}#{' (default)' unless @envvars[env.name].key? k } = #{v} (#{v.class.name})"
+        def list_variables(envname)
+            @defvars.merge(@envvars[envname]).each_pair do |k,v|
+                puts "- #{k}#{' (default)' unless @envvars[envname].key? k } = #{v} (#{v.class.name})"
             end
         end
 
@@ -97,18 +97,18 @@ module Cindy
             end
         end
 
-        def set_variable(env, varname, value, type)
+        def set_variable(envname, varname, value, type)
             type ||= 'string'
-            if env
-                @envvars[env.name][varname] = Variable.send(:"parse_#{type}", value)
+            if envname
+                @envvars[envname][varname] = Variable.send(:"parse_#{type}", value)
             else
                 @defvars[varname] = Variable.send(:"parse_#{type}", value)
             end
         end
 
-        def set_path_for_environment(env, path)
-            @paths[env.name] = path
-            @envvars[env.name] ||= {}
+        def set_path_for_environment(envname, path)
+            @paths[envname] = path
+            @envvars[envname] ||= {}
         end
 
         class << self
