@@ -1,5 +1,3 @@
-require 'delegate'
-
 module Cindy
 
     class UndefinedEnvironmentError < ::NameError
@@ -14,45 +12,6 @@ module Cindy
     class Cindy
 
         CONFIGURATION_FILE = File.expand_path('~/.cindy2')
-
-        class TemplateEnvironmentDelegator < SimpleDelegator
-            def initialize(delegated, envname)
-                super delegated
-                @envname = envname
-            end
-
-            def var(varname, value)
-                set_variable @envname, varname, value, nil
-            end
-        end
-
-        class TemplateDelegator < SimpleDelegator
-            def var(varname, value)
-                set_variable nil, varname, value, nil
-            end
-
-            def on(envname, file, &block)
-                set_path_for_environment envname, file
-                delegator = TemplateEnvironmentDelegator.new self, envname
-                delegator.instance_eval &block
-#                 block.call(self, delegator, envname)
-            end
-        end
-
-        class CindyDelegator < SimpleDelegator
-            def template(name, path, &block)
-                tpl = template_add path, name
-                if block_given?
-                    delegator = TemplateDelegator.new tpl
-                    delegator.instance_eval &block
-                end
-                tpl
-            end
-
-            def environment(name, uri = nil)
-                environment_create name, uri
-            end
-        end
 
         class TemplateEnvironmentNode
             def initialize(tpl, envname)
@@ -103,8 +62,6 @@ module Cindy
 
         def self.load
             cindy = Cindy.new
-#             delegator = CindyDelegator.new cindy
-#             delegator.instance_eval(File.read(CONFIGURATION_FILE), File.basename(CONFIGURATION_FILE), 0)
             CindyNode.new(cindy).instance_eval(File.read(CONFIGURATION_FILE), File.basename(CONFIGURATION_FILE), 0)
             cindy
         end
