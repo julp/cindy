@@ -111,25 +111,6 @@ module Cindy
             @envvars[envname] ||= {}
         end
 
-        class << self
-            def from_xml(templates, root)
-                root.elements.each(TAG_NAME) do |node|
-                    tpl = Template.new(node.attributes['file'], node.attributes['alias'])
-                    templates[node.attributes['alias']] = tpl
-                    node.elements.each('variable') do |v|
-                        tpl.defvars[v.attributes['name']] = Variable.send(:"parse_#{v.attributes['type']}", v.text)
-                    end
-                    node.elements.each('on') do |p|
-                        tpl.paths[p.attributes['environment']] = p.attributes['path']
-                        tpl.envvars[p.attributes['environment']] = {}
-                        p.elements.each('variable') do |v|
-                            tpl.envvars[p.attributes['environment']][v.attributes['name']] = Variable.send(:"parse_#{v.attributes['type']}", v.text)
-                        end
-                    end
-                end
-            end
-        end
-
 private
 
         def executor_for_env(env)
