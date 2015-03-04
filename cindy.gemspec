@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
     s.homepage = 'https://github.com/julp/cindy'
     s.license = 'BSD'
     s.files = `git ls-files -z`.split("\x0")
+    s.test_files = `git ls-files -- {test,spec,features}/*`.split("\n")
     s.executables = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
     #s.require_paths = %w(lib)
     s.required_ruby_version = '>= 2.0.0'
