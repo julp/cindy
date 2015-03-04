@@ -59,23 +59,24 @@ template nginx environment production variable server_name = www.xxx.tld
 ```
 
 Or simply create ~/.cindy as follows:
-```xml
-<cindy>
-    <environment name="development" uri="file:///"/>
-    <environment name="production" uri="ssh://root@www.xxx.tld/"/>
-    <template alias="nginx" file="/home/julp/cindy/templates/nginx.conf.tpl">
-        <on environment="development" path="/etc/nginx.conf">
-            <variable name="root" type="string">/home/julp/app/public</variable>
-            <variable name="server_name" type="string">www.xxx.lan</variable>
-        </on>
-        <on environment="production" path="/usr/local/etc/nginx.conf">
-            <variable name="root" type="string">/home/julp/app/current/public</variable>
-            <variable name="server_name" type="string">www.xxx.tld</variable>
-            <variable name="have_gzip_static" type="command">(nginx -V &gt; /dev/null) |&amp; grep -qF -- --with-http_gzip_static_module</variable> <!-- (t)csh -->
-        </on>
-        <variable name="have_gzip_static" type="command">nginx -V 2&gt;&amp;1 &gt;/dev/null | grep -qF -- --with-http_gzip_static_module</variable> <!-- (ba|k)sh -->
-    </template>
-</cindy>
+```ruby
+environment :development, 'file:///'
+environment :production, 'ssh://root@www.xxx.tld/'
+
+template :nginx, '/home/julp/cindy/templates/nginx.conf.tpl' do
+    var :have_gzip_static, Command.new('nginx -V 2>&1 >/dev/null | grep -qF -- --with-http_gzip_static_module') # (ba|k)sh
+
+    on :production, '/usr/local/etc/nginx.conf' do
+        var :server_name, 'www.xxx.tld'
+        var :root, '/home/julp/app/current/public'
+        var :have_gzip_static, Command.new('(nginx -V > /dev/null) |& grep -qF -- --with-http_gzip_static_module') # (t)csh
+    end
+
+    on :development, '/etc/nginx.conf' do
+        var :server_name, 'www.xxx.lan'
+        var :root, '/home/julp/app/public'
+    end
+end
 ```
 
 With /home/julp/cindy/templates/nginx.conf.tpl as:
