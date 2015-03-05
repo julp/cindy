@@ -13,7 +13,7 @@ COMP_FOR_TPL_ARG_1 = %w(add list)
 
 Readline.completion_append_character = " "
 Readline.completion_proc = proc do |s|
-    args = Shellwords.split Readline.line_buffer
+    args = Shellwords.split Readline.line_buffer[0, Readline.point]
     pos = args.length
     pos -= 1 unless Readline.line_buffer.end_with? Readline.completion_append_character
     pos = 0 if pos < 0
@@ -60,7 +60,7 @@ template [0] <tplname> [1] ...
                 # TODO
             end
         end || []
-    ).select { |v| args[pos].nil? || v.start_with?(args[pos]) }
+    ).select { |v| v.start_with? s }
 end
 
 CINDY_EXCEPTIONS = ObjectSpace.each_object(Class).select { |v| v.ancestors.include?(Exception) && 'Cindy' == v.name.split('::').first }
