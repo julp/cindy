@@ -62,9 +62,10 @@ module Cindy
             @templates = {}
         end
 
-        def self.load
+        def self.load(filename)
+            filename ||= CONFIGURATION_FILE
             cindy = Cindy.new
-            DSL::CindyNode.new(cindy).instance_eval(File.read(CONFIGURATION_FILE), File.basename(CONFIGURATION_FILE), 0)
+            DSL::CindyNode.new(cindy).instance_eval(File.read(filename), File.basename(filename), 0)
             cindy
         end
 

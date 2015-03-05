@@ -24,7 +24,7 @@ module Cindy
 #         end
 
         def initialize
-            @cindy = Cindy.load
+            @cindy = Cindy.load ENV['CINDY_CONF']
         end
 
 #         def check_args_count(given, expected, method = :"==")
