@@ -36,7 +36,7 @@ module Cindy
 
                 def on(envname, file, &block)
                     @tpl.set_path_for_environment envname, file
-                    TemplateEnvironmentNode.new(@tpl, envname).instance_eval &block
+                    TemplateEnvironmentNode.new(@tpl, envname).instance_eval &block if block_given?
                 end
             end
 
@@ -157,7 +157,7 @@ module Cindy
             tplname = tplname.intern
             check_environment! envname
             check_template! tplname
-            @templates[tplname].list_variables(@environments[envname])
+            @templates[tplname].list_variables(envname)
         end
 
         def template_variable_unset(tplname, varname)
