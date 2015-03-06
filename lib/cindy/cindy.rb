@@ -41,7 +41,9 @@ module Cindy
             end
             formatter = REXML::Formatters::Pretty.new 4
             formatter.compact = true
-            formatter.write doc, File.open(filename, 'w')
+            File.open(filename, 'w') do |io|
+                formatter.write doc, io
+            end
         end
 
         def environments
