@@ -27,6 +27,10 @@ module Cindy
             @cindy = Cindy.load ENV['CINDY_CONF']
         end
 
+        def finalize!
+            @cindy.save!
+        end
+
 #         def check_args_count(given, expected, method = :"==")
 #             raise (given > expected ? TooManyArgumentError : TooFewArgumentError).new unless given.send(method, expected)
 #         end

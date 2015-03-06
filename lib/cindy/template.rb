@@ -1,11 +1,9 @@
 require 'erb'
 require 'uri'
 require 'ostruct'
-require 'rexml/document'
 
 module Cindy
     class Template
-        TAG_NAME = self.name.split('::').last.downcase
 
         attr_reader :file, :alias
         attr_accessor :paths, :defvars, :envvars
@@ -18,6 +16,7 @@ module Cindy
             @envvars = {} # environment specific variables
         end
 
+=begin
         def to_xml(parent)
             parent << tpltag = REXML::Element.new(TAG_NAME)
             tpltag.attributes['file'] = @file
@@ -49,6 +48,24 @@ module Cindy
                     end
                 end
             end
+        end
+=end
+        IDENT_STRING = ' ' * 4
+
+        def to_s
+            ret = ["template :#{@alias}, #{@file.inspect} do"]
+            @defvars.each_pair do |k,v|
+                ret << "#{IDENT_STRING * 1}var :#{k}, #{v.inspect}"
+            end
+            @paths.each_pair do |ke,ve|
+               ret << "#{IDENT_STRING * 1}on :#{ke}, #{ve} do"
+               @envvars[ke].each_pair do |kv,vv|
+                   ret << "#{IDENT_STRING * 2}var :#{kv}, #{vv.inspect}"
+               end
+               ret << "#{IDENT_STRING * 1}end"
+            end
+            ret << "end"
+            ret.join "\n"
         end
 
         def environment_name_updated(oldname, newname)

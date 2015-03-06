@@ -1,8 +1,5 @@
-require 'rexml/document'
-
 module Cindy
     class Environment
-        TAG_NAME = self.name.split('::').last.downcase
 
         attr_reader :name, :uri
 
@@ -11,10 +8,14 @@ module Cindy
             @name = name
         end
 
-        def to_xml(parent)
-            parent << envtag = REXML::Element.new(TAG_NAME)
-            envtag.attributes['name'] = self.name
-            envtag.attributes['uri'] = self.uri
+#         def to_xml(parent)
+#             parent << envtag = REXML::Element.new(TAG_NAME)
+#             envtag.attributes['name'] = self.name
+#             envtag.attributes['uri'] = self.uri
+#         end
+
+        def to_s
+            "environment :#{@name}, #{@uri.inspect}"
         end
 
         def update(attributes)

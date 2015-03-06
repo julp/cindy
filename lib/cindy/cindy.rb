@@ -69,18 +69,16 @@ module Cindy
             cindy
         end
 
-        def save(filename)
-#             doc = REXML::Document.new
-#             doc << root = REXML::Element.new(self.class.name.split('::').first.downcase)
-#             @environments.each_value do |env|
-#                 env.to_xml root
-#             end
-#             @templates.each_value do |tpl|
-#                 tpl.to_xml root
-#             end
-#             formatter = REXML::Formatters::Pretty.new 4
-#             formatter.compact = true
-#             formatter.write doc, File.open(filename, 'w')
+        def save!(filename = nil)
+            filename ||= CONFIGURATION_FILE
+            @environments.each_value do |env|
+                puts env.to_s
+            end
+puts ''
+            @templates.each_value do |tpl|
+                puts tpl.to_s
+puts ''
+            end
         end
 
         def environments
@@ -89,13 +87,11 @@ module Cindy
 
         def environment_delete(name)
             @environments.delete name
-            save CONFIGURATION_FILE
         end
 
         def environment_create(name, properties)
             # assert !@environments.key? name
             @environments[name] = Environment.new(name, properties)
-            save CONFIGURATION_FILE
         end
 
         def environment_update(name, attributes)
@@ -107,7 +103,6 @@ module Cindy
                     tpl.environment_name_updated name, attributes['name']
                 end
             end
-            save CONFIGURATION_FILE
         end
 
         def templates
@@ -118,8 +113,6 @@ module Cindy
             name = name.intern
             # assert !@templates.key? name
             @templates[name] = Template.new File.expand_path(file), name
-            save CONFIGURATION_FILE
-            @templates[name]
         end
 
         def template_update(name, attributes)
@@ -127,13 +120,11 @@ module Cindy
             raise AlreadyExistsError.new "a template named '#{attributes['name']}' already exists" if attributes.key?('name') && @templates.key?(attributes['name'])
             check_template! name
             @templates[name].update attributes
-            save CONFIGURATION_FILE
         end
 
         def template_delete(name)
             name = name.intern
             @templates.delete name
-            save CONFIGURATION_FILE
         end
 
         def template_environment_print(envname, tplname)
@@ -165,7 +156,6 @@ module Cindy
             varname = varname.intern
             check_template! tplname
             @templates[tplname].unset_variable varname
-            save CONFIGURATION_FILE
         end
 
         def template_variable_rename(tplname, oldvarname, newvarname)
@@ -174,7 +164,6 @@ module Cindy
             newvarname = newvarname.intern
             check_template! tplname
             @templates[tplname].rename_variable oldvarname, newvarname
-            save CONFIGURATION_FILE
         end
 
         def template_variable_set(tplname, varname, value, type)
@@ -191,7 +180,6 @@ module Cindy
             check_template! tplname
             STDERR.puts "[ WARN ] non standard variable name found" unless varname =~ /\A[a-z][a-z0-9_]*\z/
             @templates[tplname].set_variable envname, varname, value, type
-            save CONFIGURATION_FILE
         end
 
         def template_environment_path(envname, tplname, path)
@@ -200,7 +188,6 @@ module Cindy
             check_environment! envname
             check_template! tplname
             @templates[tplname].set_path_for_environment @environments[envname], path
-            save CONFIGURATION_FILE
         end
 
 private
