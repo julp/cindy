@@ -16,40 +16,6 @@ module Cindy
             @envvars = {} # environment specific variables
         end
 
-=begin
-        def to_xml(parent)
-            parent << tpltag = REXML::Element.new(TAG_NAME)
-            tpltag.attributes['file'] = @file
-            tpltag.attributes['alias'] = @alias
-            @defvars.each_pair do |k,v|
-                tpltag << vartag = REXML::Element.new(Variable::TAG_NAME)
-                vartag.text = v
-                vartag.attributes['name'] = k
-                case v
-                    when TrueClass, FalseClass
-                        vartag.attributes['type'] = 'boolean'
-                    else
-                        vartag.attributes['type'] = v.class.name.split('::').last.downcase
-                end
-            end
-            @paths.each_pair do |ke,ve|
-                tpltag << ontag = REXML::Element.new('on')
-                ontag.attributes['environment'] = ke
-                ontag.attributes['path'] = ve
-                @envvars[ke].each_pair do |kv,vv|
-                    ontag << vartag = REXML::Element.new(Variable::TAG_NAME)
-                    vartag.text = vv
-                    vartag.attributes['name'] = kv
-                    case vv
-                        when TrueClass, FalseClass
-                            vartag.attributes['type'] = 'boolean'
-                        else
-                            vartag.attributes['type'] = vv.class.name.split('::').last.downcase
-                    end
-                end
-            end
-        end
-=end
         IDENT_STRING = ' ' * 4
 
         def to_s
@@ -65,6 +31,7 @@ module Cindy
                ret << "#{IDENT_STRING * 1}end"
             end
             ret << "end"
+            ret << ''
             ret.join "\n"
         end
 

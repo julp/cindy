@@ -69,15 +69,16 @@ module Cindy
             cindy
         end
 
+        def to_s
+            (@environments.values.map(&:to_s) + [''] + @templates.values.map(&:to_s)).join("\n")
+        end
+
         def save!(filename = nil)
             filename ||= CONFIGURATION_FILE
-            @environments.each_value do |env|
-                puts env.to_s
-            end
-puts ''
-            @templates.each_value do |tpl|
-                puts tpl.to_s
-puts ''
+            puts self
+#             File.open filename, 'w' do |f|
+            File.open '/tmp/cindy', 'w' do |f|
+                f.write self
             end
         end
 

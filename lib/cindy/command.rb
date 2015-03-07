@@ -8,6 +8,10 @@ module Cindy
             @command
         end
 
+        def inspect
+            "#{self.class.name}.new(#{@command.inspect})"
+        end
+
         def call(executor)
             executor.exec(@command, nil, true)
         end

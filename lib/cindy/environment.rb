@@ -8,12 +8,6 @@ module Cindy
             @name = name
         end
 
-#         def to_xml(parent)
-#             parent << envtag = REXML::Element.new(TAG_NAME)
-#             envtag.attributes['name'] = self.name
-#             envtag.attributes['uri'] = self.uri
-#         end
-
         def to_s
             "environment :#{@name}, #{@uri.inspect}"
         end
