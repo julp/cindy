@@ -107,7 +107,7 @@ module Cindy
         end
 
         def templates
-            @templates.values.uniq # Set.new(@templates.values) ?
+            @templates.values
         end
 
         def template_add(file, name)
