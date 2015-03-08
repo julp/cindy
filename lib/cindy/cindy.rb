@@ -126,6 +126,7 @@ module Cindy
 
         def template_update(name, attributes)
             name = name.intern
+            attributes['name'] = attributes['name'].intern if attributes.key? 'name'
             raise AlreadyExistsError.new "a template named '#{attributes['name']}' already exists" if attributes.key?('name') && @templates.key?(attributes['name'])
             check_template! name
             @templates[name].update attributes
