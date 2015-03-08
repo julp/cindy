@@ -130,6 +130,11 @@ module Cindy
             @templates.delete name
         end
 
+        def template_variables(name)
+            name = name.intern
+            @templates[name].variables
+        end
+
         def template_environment_print(envname, tplname)
             envname = envname.intern
             tplname = tplname.intern

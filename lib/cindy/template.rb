@@ -5,8 +5,7 @@ require 'ostruct'
 module Cindy
     class Template
 
-        attr_reader :file, :alias
-        attr_accessor :paths, :defvars, :envvars
+        attr_reader :file, :alias, :paths, :defvars, :envvars
 
         def initialize(file, name)
             @file = file # local template filename
@@ -59,6 +58,10 @@ module Cindy
             executor.exec("#{sudo} tee #{remote_filename}.#{suffix} > /dev/null", render(env, executor))
             executor.exec("#{sudo} ln -snf \"#{remote_filename}.#{suffix}\" \"#{remote_filename}\"")
             executor.close
+        end
+
+        def variables
+            (@defvars.keys + @envvars.collect { |v| v[1].keys }.flatten).uniq
         end
 
         def list_variables(envname)

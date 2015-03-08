@@ -1,5 +1,9 @@
 module Cindy
     class CLI
+        ARGS_ALIASES = Hash.new do |h,k|
+            k
+        end.merge!({ 'tpl' => 'template', 'var' => 'variable', 'env' => 'environment' })
+
         class InvalidArgumentError < ::ArgumentError
             def initialize(given, expected)
                 super "invalid argument '#{given}'" + case expected
@@ -39,6 +43,10 @@ module Cindy
             @cindy.templates.map { |v| v.alias.to_s }
         end
 
+        def variables_for(tplname)
+            @cindy.template_variables(tplname).map &:to_s
+        end
+
 #         def check_args_count(given, expected, method = :"==")
 #             raise (given > expected ? TooManyArgumentError : TooFewArgumentError).new unless given.send(method, expected)
 #         end
@@ -48,11 +56,11 @@ module Cindy
 
         def parse(args)
             arg = args.shift
-            case arg
+            case ARGS_ALIASES[arg]
             when 'reload'
                 # assert 0 == args.length
                 @cindy = Cindy.new
-            when 'environment', 'env'
+            when 'environment'
                 arg = args.shift
                 case arg
                 when 'list'
@@ -84,7 +92,7 @@ module Cindy
                         raise InvalidArgumentError.new arg, %w(delete update)
                     end
                 end
-            when 'template', 'tpl'
+            when 'template'
                 arg = args.shift
                 case arg
                 when 'list'
@@ -99,7 +107,7 @@ module Cindy
                 else
                     tplname = arg
                     arg = args.shift
-                    case arg
+                    case ARGS_ALIASES[arg]
                     when 'delete'
                         # assert 0 == args.length
                         @cindy.template_delete tplname
@@ -111,7 +119,7 @@ module Cindy
                             ret.update a[0] => a[2]
                         end
                         @cindy.template_update tplname, params
-                    when 'variable', 'var'
+                    when 'variable'
                         # assert args.length >= 2
                         varname = args.shift
                         arg = args.shift
@@ -130,12 +138,12 @@ module Cindy
                         else
                             raise InvalidArgumentError.new arg, %w(unset set rename)
                         end
-                    when 'environment', 'env'
+                    when 'environment'
                         # assert args.length >= 2
                         envname = args.shift
                         arg = args.shift
-                        case arg
-                        when 'variable', 'var'
+                        case ARGS_ALIASES[arg]
+                        when 'variable'
                             # assert args.length >= 1
                             arg = args.shift
                             case arg
