@@ -84,13 +84,11 @@ module Cindy
             end
         end
 
-        def set_variable(envname, varname, value, type)
-            # TODO: déplacer dans CLI
-            type ||= 'string'
+        def set_variable(envname, varname, value)
             if envname
-                @envvars[envname][varname] = Variable.send(:"parse_#{type}", value)
+                @envvars[envname][varname] = value
             else
-                @defvars[varname] = Variable.send(:"parse_#{type}", value)
+                @defvars[varname] = value
             end
         end
 

@@ -130,7 +130,8 @@ module Cindy
                         when 'set', '='
                             # assert args.length >= 1 && args.length <= 3
                             raise InvalidArgumentError.new args[1], 'typed' if args.length > 1 && 'typed' != args[1]
-                            @cindy.template_variable_set tplname, varname, args[0], args[2]
+                            type = args[2] || 'string'
+                            @cindy.template_variable_set tplname, varname, Variable.send(:"parse_#{type}", args[0])
                         when 'rename'
                             # assert 2 == args.length
                             raise InvalidArgumentError.new args[0], 'to' unless 'to' == args[0]

@@ -21,7 +21,7 @@ module Cindy
                 end
 
                 def var(varname, value)
-                    @tpl.set_variable @envname, varname, value, nil
+                    @tpl.set_variable @envname, varname, value
                 end
             end
 
@@ -31,7 +31,7 @@ module Cindy
                 end
 
                 def var(varname, value)
-                    @tpl.set_variable nil, varname, value, nil
+                    @tpl.set_variable nil, varname, value
                 end
 
                 def on(envname, file, &block)
