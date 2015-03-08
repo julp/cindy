@@ -34,6 +34,8 @@ module Cindy
                     @tpl.set_variable nil, varname, value
                 end
 
+                alias_method :variable, :var
+
                 def on(envname, file, &block)
                     @tpl.set_path_for_environment envname, file
                     TemplateEnvironmentNode.new(@tpl, envname).instance_eval &block if block_given?
