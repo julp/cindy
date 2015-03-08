@@ -59,17 +59,19 @@ module Cindy
             end
         end
 
-        attr_accessor :filename
+        attr_accessor :changed
 
         def initialize
+            @changed = false
             @environments = {}
             @templates = {}
         end
 
-        def self.load(filename)
-            @filename ||= CONFIGURATION_FILE
+        def self.load(filename = nil)
+            @filename = filename || CONFIGURATION_FILE
             cindy = Cindy.new
-            DSL::CindyNode.new(cindy).instance_eval(File.read(filename), File.basename(filename), 0)
+            DSL::CindyNode.new(cindy).instance_eval(File.read(@filename), File.basename(@filename), 0)
+            cindy.changed = false
             cindy
         end
 
@@ -79,11 +81,9 @@ module Cindy
 
         def save!(filename = nil)
             filename ||= @filename || CONFIGURATION_FILE
-            puts self
-#             File.open filename, 'w' do |f|
-            File.open '/tmp/cindy', 'w' do |f|
+            File.open filename, 'w' do |f|
                 f.write self
-            end
+            end if @changed
         end
 
         def environments
@@ -92,11 +92,13 @@ module Cindy
 
         def environment_delete(name)
             @environments.delete name
+            changed!
         end
 
         def environment_create(name, properties)
             # assert !@environments.key? name
             @environments[name] = Environment.new(name, properties)
+            changed!
         end
 
         def environment_update(name, attributes)
@@ -108,6 +110,7 @@ module Cindy
                     tpl.environment_name_updated name, attributes['name']
                 end
             end
+            changed!
         end
 
         def templates
@@ -117,6 +120,7 @@ module Cindy
         def template_add(file, name)
             name = name.intern
             # assert !@templates.key? name
+            changed!
             @templates[name] = Template.new File.expand_path(file), name
         end
 
@@ -125,11 +129,13 @@ module Cindy
             raise AlreadyExistsError.new "a template named '#{attributes['name']}' already exists" if attributes.key?('name') && @templates.key?(attributes['name'])
             check_template! name
             @templates[name].update attributes
+            changed!
         end
 
         def template_delete(name)
             name = name.intern
             @templates.delete name
+            changed!
         end
 
         def template_variables(name)
@@ -166,6 +172,7 @@ module Cindy
             varname = varname.intern
             check_template! tplname
             @templates[tplname].unset_variable varname
+            changed!
         end
 
         def template_variable_rename(tplname, oldvarname, newvarname)
@@ -174,12 +181,14 @@ module Cindy
             newvarname = newvarname.intern
             check_template! tplname
             @templates[tplname].rename_variable oldvarname, newvarname
+            changed!
         end
 
         def template_variable_set(tplname, varname, value, type)
             tplname = tplname.intern
             varname = varname.intern
             template_environment_variable_set nil, tplname, varname, value, type
+            changed!
         end
 
         def template_environment_variable_set(envname, tplname, varname, value, type)
@@ -190,6 +199,7 @@ module Cindy
             check_template! tplname
             STDERR.puts "[ WARN ] non standard variable name found" unless varname =~ /\A[a-z][a-z0-9_]*\z/
             @templates[tplname].set_variable envname, varname, value, type
+            changed!
         end
 
         def template_environment_path(envname, tplname, path)
@@ -198,9 +208,14 @@ module Cindy
             check_environment! envname
             check_template! tplname
             @templates[tplname].set_path_for_environment @environments[envname], path
+            changed!
         end
 
 private
+
+        def changed!
+            @changed = true
+        end
 
         def check_environment!(envname)
             raise UndefinedEnvironmentError.new "call to an undefined environment: #{envname}" unless @environments[envname]
