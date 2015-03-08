@@ -1,11 +1,9 @@
 require 'erb'
 require 'uri'
 require 'ostruct'
-require 'rexml/document'
 
 module Cindy
     class Template
-        TAG_NAME = self.name.split('::').last.downcase
 
         attr_reader :file, :alias
         attr_accessor :paths, :defvars, :envvars
@@ -18,37 +16,23 @@ module Cindy
             @envvars = {} # environment specific variables
         end
 
-        def to_xml(parent)
-            parent << tpltag = REXML::Element.new(TAG_NAME)
-            tpltag.attributes['file'] = @file
-            tpltag.attributes['alias'] = @alias
+        IDENT_STRING = ' ' * 4
+
+        def to_s
+            ret = ["template :#{@alias}, #{@file.inspect} do"]
             @defvars.each_pair do |k,v|
-                tpltag << vartag = REXML::Element.new(Variable::TAG_NAME)
-                vartag.text = v
-                vartag.attributes['name'] = k
-                case v
-                    when TrueClass, FalseClass
-                        vartag.attributes['type'] = 'boolean'
-                    else
-                        vartag.attributes['type'] = v.class.name.split('::').last.downcase
-                end
+                ret << "#{IDENT_STRING * 1}var :#{k}, #{v.inspect}"
             end
             @paths.each_pair do |ke,ve|
-                tpltag << ontag = REXML::Element.new('on')
-                ontag.attributes['environment'] = ke
-                ontag.attributes['path'] = ve
-                @envvars[ke].each_pair do |kv,vv|
-                    ontag << vartag = REXML::Element.new(Variable::TAG_NAME)
-                    vartag.text = vv
-                    vartag.attributes['name'] = kv
-                    case vv
-                        when TrueClass, FalseClass
-                            vartag.attributes['type'] = 'boolean'
-                        else
-                            vartag.attributes['type'] = vv.class.name.split('::').last.downcase
-                    end
-                end
+               ret << "#{IDENT_STRING * 1}on :#{ke}, #{ve} do"
+               @envvars[ke].each_pair do |kv,vv|
+                   ret << "#{IDENT_STRING * 2}var :#{kv}, #{vv.inspect}"
+               end
+               ret << "#{IDENT_STRING * 1}end"
             end
+            ret << "end"
+            ret << ''
+            ret.join "\n"
         end
 
         def environment_name_updated(oldname, newname)
@@ -77,9 +61,9 @@ module Cindy
             executor.close
         end
 
-        def list_variables(env)
-            @defvars.merge(@envvars[env.name]).each_pair do |k,v|
-                puts "- #{k}#{' (default)' unless @envvars[env.name].key? k } = #{v} (#{v.class.name})"
+        def list_variables(envname)
+            @defvars.merge(@envvars[envname]).each_pair do |k,v|
+                puts "- #{k}#{' (default)' unless @envvars[envname].key? k } = #{v} (#{v.class.name})"
             end
         end
 
@@ -97,37 +81,18 @@ module Cindy
             end
         end
 
-        def set_variable(env, varname, value, type)
+        def set_variable(envname, varname, value, type)
             type ||= 'string'
-            if env
-                @envvars[env.name][varname] = Variable.send(:"parse_#{type}", value)
+            if envname
+                @envvars[envname][varname] = Variable.send(:"parse_#{type}", value)
             else
                 @defvars[varname] = Variable.send(:"parse_#{type}", value)
             end
         end
 
-        def set_path_for_environment(env, path)
-            @paths[env.name] = path
-            @envvars[env.name] ||= {}
-        end
-
-        class << self
-            def from_xml(templates, root)
-                root.elements.each(TAG_NAME) do |node|
-                    tpl = Template.new(node.attributes['file'], node.attributes['alias'])
-                    templates[node.attributes['alias']] = tpl
-                    node.elements.each('variable') do |v|
-                        tpl.defvars[v.attributes['name']] = Variable.send(:"parse_#{v.attributes['type']}", v.text)
-                    end
-                    node.elements.each('on') do |p|
-                        tpl.paths[p.attributes['environment']] = p.attributes['path']
-                        tpl.envvars[p.attributes['environment']] = {}
-                        p.elements.each('variable') do |v|
-                            tpl.envvars[p.attributes['environment']][v.attributes['name']] = Variable.send(:"parse_#{v.attributes['type']}", v.text)
-                        end
-                    end
-                end
-            end
+        def set_path_for_environment(envname, path)
+            @paths[envname] = path
+            @envvars[envname] ||= {}
         end
 
 private

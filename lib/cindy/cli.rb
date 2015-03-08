@@ -24,7 +24,11 @@ module Cindy
 #         end
 
         def initialize
-            @cindy = Cindy.new
+            @cindy = Cindy.load ENV['CINDY_CONF']
+        end
+
+        def finalize!
+            @cindy.save!
         end
 
         def environments
