@@ -57,13 +57,15 @@ module Cindy
             end
         end
 
+        attr_accessor :filename
+
         def initialize
             @environments = {}
             @templates = {}
         end
 
         def self.load(filename)
-            filename ||= CONFIGURATION_FILE
+            @filename ||= CONFIGURATION_FILE
             cindy = Cindy.new
             DSL::CindyNode.new(cindy).instance_eval(File.read(filename), File.basename(filename), 0)
             cindy
@@ -74,7 +76,7 @@ module Cindy
         end
 
         def save!(filename = nil)
-            filename ||= CONFIGURATION_FILE
+            filename ||= @filename || CONFIGURATION_FILE
             puts self
 #             File.open filename, 'w' do |f|
             File.open '/tmp/cindy', 'w' do |f|
