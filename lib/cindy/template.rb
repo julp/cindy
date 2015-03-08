@@ -104,9 +104,9 @@ private
             uri = URI.parse(env.uri)
             case uri.scheme
                 when nil, 'file'
-                    executor = Executor::Local.new
+                    Executor::Local.new
                 when 'ssh'
-                    executor = Executor::SSH.new Net::SSH.start(uri.host, uri.user)
+                    Executor::SSH.new Net::SSH.start(uri.host, uri.user)
                 else
                     raise Exception.new 'Unexpected protocol'
             end
