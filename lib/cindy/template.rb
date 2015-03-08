@@ -23,7 +23,7 @@ module Cindy
                 ret << "#{IDENT_STRING * 1}var :#{k}, #{v.inspect}"
             end
             @paths.each_pair do |ke,ve|
-               ret << "#{IDENT_STRING * 1}on :#{ke}, #{ve} do"
+               ret << "#{IDENT_STRING * 1}on :#{ke}, #{ve.inspect} do"
                @envvars[ke].each_pair do |kv,vv|
                    ret << "#{IDENT_STRING * 2}var :#{kv}, #{vv.inspect}"
                end
@@ -85,6 +85,7 @@ module Cindy
         end
 
         def set_variable(envname, varname, value, type)
+            # TODO: déplacer dans CLI
             type ||= 'string'
             if envname
                 @envvars[envname][varname] = Variable.send(:"parse_#{type}", value)
