@@ -114,6 +114,7 @@ private
         def render(env, executor = nil)
             close_executor = executor.nil?
             executor ||= executor_for_env(env)
+#             shell = executor.exec('ps -p $$ -ocomm=')
             vars = Hash[
                 @defvars.merge(@envvars[env.name]).map do |k, v|
                     if v.respond_to? :call
