@@ -11,7 +11,7 @@ module Cindy
 
     class Cindy
 
-        CONFIGURATION_FILE = File.expand_path('~/.cindy2')
+        CONFIGURATION_FILE = File.expand_path '~/.cindy'
 
         module DSL
             class TemplateEnvironmentNode
