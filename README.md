@@ -26,19 +26,26 @@ Dependencies: net-ssh, highline
 
 Create ~/.cindy as follows:
 ```ruby
+# create 2 environments named "production" and "development"
 environment :development, 'file:///'
 environment :production, 'ssh://root@www.xxx.tld/'
 
+# register the template /home/julp/cindy/templates/nginx.conf.tpl (see below) for our nginx configuration
 template :nginx, '/home/julp/cindy/templates/nginx.conf.tpl' do
+    # default variables
+
+    # have_gzip_static will be set to true or false depending on the result of the following command
     var :have_gzip_static, Command.new('nginx -V 2>&1 >/dev/null | grep -qF -- --with-http_gzip_static_module') # (ba|k)sh
 
     on :production, '/usr/local/etc/nginx.conf' do
+        # define and/or override some variables for nginx when on our production environment
         var :server_name, 'www.xxx.tld'
         var :root, '/home/julp/app/current/public'
         var :have_gzip_static, Command.new('(nginx -V > /dev/null) |& grep -qF -- --with-http_gzip_static_module') # (t)csh
     end
 
     on :development, '/etc/nginx.conf' do
+        # (re)define variables for nginx when in development
         var :server_name, 'www.xxx.lan'
         var :root, '/home/julp/app/public'
     end
@@ -52,6 +59,10 @@ And /home/julp/cindy/templates/nginx.conf.tpl as:
 server {
     server_name <%= server_name %>;
     root <%= root %>;
+
+    <% if false %>
+        this content never appears
+    <% end %>
 
     <% if have_gzip_static %>
         gzip_static on;
@@ -93,7 +104,7 @@ server, is compiled or not with the gzip_static module.
 As you can see in this same example, note that commands may depend on the "remote shell" (redirections in particular) and also on the value of the
 PATH environment variable.
 
-## Predefined variables
+## Predefined variables in templates
 
 * `_install_dir_`: directory in which output file will be deployed (equivalent to `File.dirname _install_file_` but more convenient)
 * `_install_file_`: filename under which the file will be deployed
