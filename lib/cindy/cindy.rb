@@ -23,6 +23,8 @@ module Cindy
                 def var(varname, value)
                     @tpl.set_variable @envname, varname, value
                 end
+
+                alias_method :variable, :var
             end
 
             class TemplateNode
