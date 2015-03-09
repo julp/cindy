@@ -88,7 +88,7 @@ template [0] <tplname> [1] ...
                             cli.variables_for(tplname)
                         when 3
                             %w(unset set rename)
-                        when 4 # && 'rename' == args[X]
+                        when 4 # TODO: && 'rename' == args[X]
                             %w(to)
                         end
                     when %w(template environment)
@@ -97,9 +97,9 @@ template [0] <tplname> [1] ...
                             cli.environments
                         when 3
                             %w(deploy print path variable)
-                        when 4 # && 'variable' == args[X]
+                        when 4 # TODO: && 'variable' == args[X]
                             %w(list) + cli.variables_for(tplname)
-                        when 5 # && 'variable' == args[X] && 'list' != args[X+1]
+                        when 5 # TODO: && 'variable' == args[X] && 'list' != args[X+1]
                             %w(set)
                         end
                     end
