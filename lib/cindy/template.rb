@@ -75,7 +75,7 @@ module Cindy
 #         end
 
         def set_variable(envname, varname, value)
-            envname = envname.intern
+            envname = envname.intern if envname
             varname = varname.intern
             STDERR.puts "[ WARN ] non standard variable name found" unless varname =~ /\A[a-z][a-z0-9_]*\z/
             if envname
