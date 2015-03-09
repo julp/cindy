@@ -67,6 +67,13 @@ module Cindy
             @templates = {}
         end
 
+        def self.from_string(string)
+            cindy = Cindy.new
+            DSL::CindyNode.new(cindy).instance_eval(string)
+            cindy.changed = false
+            cindy
+        end
+
         def self.load(filename = nil)
             @filename = filename || CONFIGURATION_FILE
             cindy = Cindy.new
