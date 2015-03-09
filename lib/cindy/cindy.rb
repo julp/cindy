@@ -118,7 +118,7 @@ module Cindy
             tplname = tplname.intern
             check_environment! envname
             check_template! tplname
-            @templates[tplname].print(@environments[envname])
+            @templates[tplname].print @environments[envname]
         end
 
         def template_environment_deploy(envname, tplname)
@@ -126,7 +126,7 @@ module Cindy
             tplname = tplname.intern
             check_environment! envname
             check_template! tplname
-            @templates[tplname].deploy(@environments[envname])
+            @templates[tplname].deploy @environments[envname]
         end
 
         def template_environment_variables(envname, tplname)
@@ -134,7 +134,7 @@ module Cindy
             tplname = tplname.intern
             check_environment! envname
             check_template! tplname
-            @templates[tplname].list_variables(envname)
+            @templates[tplname].list_variables envname
         end
 
 private
