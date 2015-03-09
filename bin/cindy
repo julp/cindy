@@ -123,4 +123,3 @@ else
         end
     end
 end
-cli.finalize!

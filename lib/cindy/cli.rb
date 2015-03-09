@@ -31,10 +31,6 @@ module Cindy
             @cindy = Cindy.load ENV['CINDY_CONF']
         end
 
-        def finalize!
-            @cindy.save!
-        end
-
         def environments
             @cindy.environments.map { |v| v.name.to_s }
         end
@@ -103,7 +99,7 @@ module Cindy
                 when 'add'
                     # assert 3 == args.length
                     raise InvalidArgumentError.new args[1], 'as' unless 'as' == args[1]
-                    @cindy.template_add args[0], args[2]
+                    @cindy.template_add args[2], args[0]
                 else
                     tplname = arg
                     arg = args.shift

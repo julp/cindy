@@ -40,26 +40,7 @@ Dependencies: net-ssh, highline
 
 ## Example
 
-Enter the following commands:
-```
-cindy
-# create 2 environments named "production" and "development"
-environment create file:/// as development
-environment create ssh://root@www.xxx.tld/ as production
-# register the template /home/julp/cindy/templates/nginx.conf.tpl (see below) for our nginx configuration
-template add /home/julp/cindy/templates/nginx.conf.tpl as nginx
-# define some variables for our nginx template according to the environment
-template nginx environment development path = /etc/nginx.conf
-template nginx environment production path = /usr/local/etc/nginx.conf
-template nginx variable have_gzip_static set "nginx -V 2>&1 >/dev/null | grep -qF -- --with-http_gzip_static_module" typed command
-template nginx environment production variable have_gzip_static set "(nginx -V > /dev/null) |& grep -qF -- --with-http_gzip_static_module" typed command
-template nginx environment development variable root = /home/julp/app/public
-template nginx environment production variable root = /home/julp/app/current/public
-template nginx environment development variable server_name = www.xxx.lan
-template nginx environment production variable server_name = www.xxx.tld
-```
-
-Or simply create ~/.cindy as follows:
+Create ~/.cindy as follows:
 ```ruby
 environment :development, 'file:///'
 environment :production, 'ssh://root@www.xxx.tld/'
@@ -80,8 +61,10 @@ template :nginx, '/home/julp/cindy/templates/nginx.conf.tpl' do
 end
 ```
 
-With /home/julp/cindy/templates/nginx.conf.tpl as:
+And /home/julp/cindy/templates/nginx.conf.tpl as:
 ```
+# <%= _install_file_ %>
+
 server {
     server_name <%= server_name %>;
     root <%= root %>;
@@ -92,8 +75,10 @@ server {
 }
 ```
 
-By running `cindy template nginx environment production print`, we obtain:
+Running `cindy template nginx environment production print`, result in:
 ```
+# /usr/local/etc/nginx.conf
+
 server {
     server_name www.xxx.tld;
     root /home/julp/app/current/public;
@@ -103,22 +88,11 @@ server {
 ```
 (if we admit that nginx is built, on production environment, with Gzip Precompression module)
 
-After `cindy template nginx environment production deploy`, if we `ls -l /etc/nginx.conf*`:
+After `cindy template nginx environment production deploy`, output of `ls -l /etc/nginx.conf*` is:
 ```
 lrwxrwxrwx [...] /usr/local/etc/nginx.conf -> /usr/local/etc/nginx.conf.201502262311
 -rw-r--r-- [...] /usr/local/etc/nginx.conf.201502262209                              # file at previous deployment
 -rw-r--r-- [...] /usr/local/etc/nginx.conf.201502262311                              # current version (1h02m later)
-```
-
-Notes:
-* if the value contains spaces, you have to surround it by quotes
-* if you pass directly your command as arguments to cindy, shell variables will be substitued but this would not be the case if cindy is used
-as a shell. Eg:
-```
-cindy tpl add $HOME/cindy/templates/nginx.conf.tpl as nginx # cindy will register /home/julp/cindy/templates/nginx.conf.tpl
-# but
-cindy
-tpl add $HOME/cindy/templates/nginx.conf.tpl as nginx # cindy will register the result of `pwd`/\$HOME/cindy/templates/nginx.conf.tpl
 ```
 
 ## What is a *command* typed variable?
@@ -132,8 +106,8 @@ standard output else a string with the content of standard output.
 In the example above, `nginx -V 2>&1 >/dev/null | grep -qF -- --with-http_gzip_static_module` is intended to determine if nginx, on the remote
 server, is compiled or not with the gzip_static module.
 
-As you can see in this same example, note that commands may depend on the "remote shell" (redirections in particular) and also on the PATH environment
-variable.
+As you can see in this same example, note that commands may depend on the "remote shell" (redirections in particular) and also on the value of the
+PATH environment variable.
 
 ## Predefined variables
 
