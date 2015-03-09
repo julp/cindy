@@ -8,100 +8,29 @@ require 'shellwords'
 
 cli = Cindy::CLI.new
 
-COMP_FOR_ENV_ARG_1 = %w(list create)
-COMP_FOR_TPL_ARG_1 = %w(add list)
-
 Readline.completion_append_character = " "
 Readline.completion_proc = proc do |s|
     args = Shellwords.split Readline.line_buffer[0, Readline.point]
-#     pos = args.length
-#     pos -= 1 unless Readline.line_buffer.end_with? Readline.completion_append_character
-#     pos = 0 if pos < 0
     args.pop unless Readline.line_buffer.end_with? Readline.completion_append_character
     (
-=begin
-template [0] <tplname> [1] ...
-
-- delete (nothing)      [2]
-- update (?)            [2]
-- var(iable)            [2]
-    - <varname>         [3]
-        - unset         [4]
-        - set|=         [4]
-        - rename (to)   [4]
-- env(ironment)
-    - <envname>         [3]
-        - deploy/print  [4]
-        - path
-            - =         [5]
-        - var(iable)    [4]
-            - list      [5]
-            - <varname> [5]
-                - set|= [6]
-=end
-=begin
-        case pos
-        when 0
-            %w(reload environment template)
-        when 1
-            case args[0]
-            when 'environment', 'env'
-                COMP_FOR_ENV_ARG_1 + cli.environments
-            when 'template', 'tpl'
-                COMP_FOR_TPL_ARG_1 + cli.templates
-            end
-        when 2
-            case args[0]
-            when 'environment', 'env'
-                %w(delete update) unless COMP_FOR_ENV_ARG_1.include? args[1]
-            when 'template', 'tpl'
-                %w(delete update variable environment) unless COMP_FOR_TPL_ARG_1.include? args[1]
-            end
-        else
-            if %w(template tpl).include?(args[0]) && !COMP_FOR_ENV_ARG_1.include?(args[1]) && 'delete' != args[2]
-                # TODO
-            end
-=end
         case args
         when []
             %w(reload environment template)
         when %w(environment), %w(env)
-            COMP_FOR_ENV_ARG_1 + cli.environments
+            %w(list)
         when %w(template), %w(tpl)
-            COMP_FOR_TPL_ARG_1 + cli.templates
+            %w(list) + cli.templates
         else
-            if args.length >= 2
+            if 'template' == Cindy::CLI::ARGS_ALIASES[args[0]] && args.length >= 2
                 tplname = args.delete_at 1
                 if 1 == args.length
-                    case Cindy::CLI::ARGS_ALIASES[args[0]]
-                    when 'environment'
-                        %w(delete update) unless COMP_FOR_ENV_ARG_1.include? tplname
-                    when 'template'
-                        %w(delete update variable environment) unless COMP_FOR_TPL_ARG_1.include? tplname
-                    end
-                else
-#                     name = args.delete_at 2
-                    case args[0,2].map { |v| Cindy::CLI::ARGS_ALIASES[v] }
-                    when %w(template variable)
-                        case args.length
-                        when 2
-                            cli.variables_for(tplname)
-                        when 3
-                            %w(unset set rename)
-                        when 4 # TODO: && 'rename' == args[X]
-                            %w(to)
-                        end
-                    when %w(template environment)
-                        case args.length
-                        when 2
-                            cli.environments
-                        when 3
-                            %w(deploy print path variable)
-                        when 4 # TODO: && 'variable' == args[X]
-                            %w(list) + cli.variables_for(tplname)
-                        when 5 # TODO: && 'variable' == args[X] && 'list' != args[X+1]
-                            %w(set)
-                        end
+                    %w(environment) unless 'list' == tplname
+                elsif 'environment' == Cindy::CLI::ARGS_ALIASES[args[1]]
+                    case args.length
+                    when 2
+                        cli.environments
+                    when 3
+                        %w(deploy print details)
                     end
                 end
             end

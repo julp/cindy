@@ -12,32 +12,16 @@ Dependencies: net-ssh, highline
 
 ## Usage
 
-* reload                                                                => force Cindy to reload its configuration file
+* reload                        => force Cindy to reload its configuration file
 * environment (shortcut: env)
-    * list                                                              => list all known environments
-    * create \<uri> as \<name>                                          => register a new environment
-    * \<name>
-        * update name = \<new name> and/or uri = \<new uri>             => modify environment named *name*, renaming it and/or changing its uri
-        * delete                                                        => remove environment named *name*
+    * list                      => list all known environments
 * template (shortcut: tpl)
-    * list                                                              => list all known templates
-    * add \<file> as \<name>                                            => register template *file* with the mnemonic *name*
+    * list                      => list all known templates
     * \<name>
-        * delete                                                        => remove template named *name* (the template file is not deleted)
-        * update name = \<new name> and/or file = \<new location>       => modify template named *name*: rename alias and/or change template location
         * environment \<name>
-            * deploy                                                    => install the generated file on the given environment
-            * print                                                     => display output configuration file as it would be deployed on the given environment
-            * path = \<path>                                            => define path under which rendered output should be installed for the given environment
-            * variable (shortcut: var)
-                * list                                                  => list all applicable variables to the given template, their values and scopes
-                * \<name>
-                    * set|= \<value> (typed boolean|string|command|int) => (re)define a variable at environment level
-        * variable \<name>
-            * set|= \<value> (typed boolean|string|command|int)         => define a variable at template level, acts as default value
-            * rename to \<new name>                                     => rename the given variable (in all scopes)
-            * unset                                                     => unset the given variable in all scopes
-
+            * deploy            => install the generated file on the given environment
+            * print             => display output configuration file as it would be deployed on the given environment
+            * details           => list all applicable variables to the given template, their values and scopes
 ## Example
 
 Create ~/.cindy as follows:

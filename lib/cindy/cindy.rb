@@ -47,14 +47,14 @@ module Cindy
                     @cindy = cindy
                 end
 
-                def template(name, path, &block)
-                    tpl = @cindy.template_add name, path
+                def template(tplname, path, &block)
+                    tpl = @cindy.template_add tplname, path
                     TemplateNode.new(tpl).instance_eval &block
                     tpl
                 end
 
-                def environment(name, uri = nil)
-                    @cindy.environment_create name, uri
+                def environment(envname, uri = nil)
+                    @cindy.environment_add envname, uri
                 end
             end
         end
@@ -90,28 +90,10 @@ module Cindy
             @environments.key? envname
         end
 
-        def environment_delete(envname)
-            envname = envname.intern
-            @environments.delete envname
-        end
-
-        def environment_create(envname, attributes)
+        def environment_add(envname, attributes)
             envname = envname.intern
             # assert !@environments.key? envname
             @environments[envname] = Environment.new(envname, attributes)
-        end
-
-        def environment_update(envname, attributes)
-            envname = envname.intern
-            attributes['name'] = attributes['name'].intern if attributes.key? 'name'
-            raise AlreadyExistsError.new "an environment named '#{attributes['name']}' already exists" if attributes.key?('name') && @environments.key?(attributes['name'])
-            check_environment! envname
-            @environments[envname].update attributes
-            if attributes.key? 'name'
-                @templates.each_value do |tpl|
-                    tpl.environment_name_updated envname, attributes['name']
-                end
-            end
         end
 
         def templates
@@ -127,24 +109,6 @@ module Cindy
             tplname = tplname.intern
             # assert !@templates.key? name
             @templates[tplname] = Template.new File.expand_path(file), tplname
-        end
-
-        def template_update(tplname, attributes)
-            tplname = tplname.intern
-            attributes['name'] = attributes['name'].intern if attributes.key? 'name'
-            raise AlreadyExistsError.new "a template named '#{attributes['name']}' already exists" if attributes.key?('name') && @templates.key?(attributes['name'])
-            check_template! tplname
-            @templates[tplname].update attributes
-        end
-
-        def template_delete(tplname)
-            tplname = tplname.intern
-            @templates.delete tplname
-        end
-
-        def template_variables(tplname)
-            tplname = tplname.intern
-            @templates[tplname].variables
         end
 
         def template_environment_print(envname, tplname)
@@ -169,45 +133,6 @@ module Cindy
             check_environment! envname
             check_template! tplname
             @templates[tplname].list_variables(envname)
-        end
-
-        def template_variable_unset(tplname, varname)
-            tplname = tplname.intern
-            varname = varname.intern
-            check_template! tplname
-            @templates[tplname].unset_variable varname
-        end
-
-        def template_variable_rename(tplname, oldvarname, newvarname)
-            tplname = tplname.intern
-            oldvarname = oldvarname.intern
-            newvarname = newvarname.intern
-            check_template! tplname
-            @templates[tplname].rename_variable oldvarname, newvarname
-        end
-
-        def template_variable_set(tplname, varname, value, type)
-            tplname = tplname.intern
-            varname = varname.intern
-            template_environment_variable_set nil, tplname, varname, value, type
-        end
-
-        def template_environment_variable_set(envname, tplname, varname, value, type)
-            envname = envname.intern
-            tplname = tplname.intern
-            varname = varname.intern
-            check_environment! envname if envname
-            check_template! tplname
-            STDERR.puts "[ WARN ] non standard variable name found" unless varname =~ /\A[a-z][a-z0-9_]*\z/
-            @templates[tplname].set_variable envname, varname, value, type
-        end
-
-        def template_environment_path(envname, tplname, path)
-            envname = envname.intern
-            tplname = tplname.intern
-            check_environment! envname
-            check_template! tplname
-            @templates[tplname].set_path_for_environment @environments[envname], path
         end
 
 private

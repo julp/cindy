@@ -34,16 +34,6 @@ module Cindy
             ret.join "\n"
         end
 
-        def environment_name_updated(oldname, newname)
-            @paths[newname] = @paths.delete(oldname) if @paths.key? oldname
-            @envvars[newname] = @envvars.delete(oldname) if @envvars.key? oldname
-        end
-
-        def update(attributes)
-            @file = attributes['file'] if attributes['file']
-            @alias = attributes['name'] if attributes['name']
-        end
-
         def print(env)
             puts render(env)
         end
@@ -60,9 +50,9 @@ module Cindy
             executor.close
         end
 
-        def variables
-            (@defvars.keys + @envvars.collect { |v| v[1].keys }.flatten).uniq
-        end
+#         def variables
+#             (@defvars.keys + @envvars.collect { |v| v[1].keys }.flatten).uniq
+#         end
 
         def list_variables(envname)
             @defvars.merge(@envvars[envname]).each_pair do |k,v|
@@ -70,21 +60,22 @@ module Cindy
             end
         end
 
-        def unset_variable(varname)
-            @defvars.delete varname
-            @envvars.each_value do |h|
-                h.delete varname
-            end
-        end
+#         def unset_variable(varname)
+#             @defvars.delete varname
+#             @envvars.each_value do |h|
+#                 h.delete varname
+#             end
+#         end
 
-        def rename_variable(oldvarname, newvarname)
-            @defvars[newvarname] = value if value = @defvars.delete(oldvarname)
-            @envvars.each_value do |h|
-                h[newvarname] = value if value = h.delete(oldvarname)
-            end
-        end
+#         def rename_variable(oldvarname, newvarname)
+#             @defvars[newvarname] = value if value = @defvars.delete(oldvarname)
+#             @envvars.each_value do |h|
+#                 h[newvarname] = value if value = h.delete(oldvarname)
+#             end
+#         end
 
         def set_variable(envname, varname, value)
+            STDERR.puts "[ WARN ] non standard variable name found" unless varname =~ /\A[a-z][a-z0-9_]*\z/
             if envname
                 @envvars[envname][varname] = value
             else
