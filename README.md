@@ -49,6 +49,11 @@ template :nginx, '/home/julp/cindy/templates/nginx.conf.tpl' do
         var :server_name, 'www.xxx.lan'
         var :root, '/home/julp/app/public'
     end
+
+    # after deployment, check syntax
+    postcmd 'nginx -tc $INSTALL_FILE'
+    # if no error, reload configuration
+    postcmd 'nginx -s reload'
 end
 ```
 

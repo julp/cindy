@@ -42,6 +42,10 @@ module Cindy
                     @tpl.set_path_for_environment envname, file
                     TemplateEnvironmentNode.new(@tpl, envname).instance_eval &block if block_given?
                 end
+
+                def postcmd(cmd, options = {})
+                    @tpl.add_postcmd cmd, options
+                end
             end
 
             class CindyNode
