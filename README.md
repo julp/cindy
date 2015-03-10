@@ -30,8 +30,8 @@ Create ~/.cindy as follows:
 environment :development, 'file:///'
 environment :production, 'ssh://root@www.xxx.tld/'
 
-# register the template /home/julp/cindy/templates/nginx.conf.tpl (see below) for our nginx configuration
-template :nginx, '/home/julp/cindy/templates/nginx.conf.tpl' do
+# register the template ~/cindy/templates/nginx.conf.tpl (see below) for our nginx configuration
+template :nginx, '~/cindy/templates/nginx.conf.tpl' do
     # default variables
 
     # have_gzip_static will be set to true or false depending on the result of the following command
@@ -52,7 +52,7 @@ template :nginx, '/home/julp/cindy/templates/nginx.conf.tpl' do
 end
 ```
 
-And /home/julp/cindy/templates/nginx.conf.tpl as:
+And ~/cindy/templates/nginx.conf.tpl as:
 ```
 # <%= _install_file_ %>
 
