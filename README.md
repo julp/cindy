@@ -1,6 +1,6 @@
 ## Introduction
 
-Tired to modify your configuration files depending on the targeted computer? Turn them out into ERB templates and deploy them in one command.
+Tired to modify your configuration files depending on the targeted host? Turn them out into ERB templates and deploy them in one command.
 
 The purpose is to implement a kind of shell with limited dependencies to automate configuration and deployment on various (Unix) environments.
 
@@ -10,7 +10,7 @@ Dependencies: net-ssh, highline
 
 `gem install cindy-cm`
 
-## Usage
+## Usage of cindy command
 
 * reload                        => force Cindy to reload its configuration file
 * environment (shortcut: env)
@@ -22,6 +22,7 @@ Dependencies: net-ssh, highline
             * deploy            => install the generated file on the given environment
             * print             => display output configuration file as it would be deployed on the given environment
             * details           => list all applicable variables to the given template, their values and scopes
+
 ## Example
 
 Create ~/.cindy as follows:
@@ -90,13 +91,13 @@ lrwxrwxrwx [...] /usr/local/etc/nginx.conf -> /usr/local/etc/nginx.conf.20150226
 -rw-r--r-- [...] /usr/local/etc/nginx.conf.201502262311                              # current version (1h02m later)
 ```
 
-## What is a *command* typed variable?
+## What is a *Command* object?
 
 It is a kind of dynamic variable: instead of hardcoding a value which depends on the remote host, we execute the associated command before each
 time the template is rendered. It is more convenient mainly if this value can change at any time.
 
-The result of the command is a boolean based on its exit status (0 => true, everithing else => false) if the command does not print anything on
-standard output else a string with the content of standard output.
+The result of the command is a boolean based on its exit status (0 => true, everything else => false) if the command does not print anything on
+standard output else a string with the content sent on standard output.
 
 In the example above, `nginx -V 2>&1 >/dev/null | grep -qF -- --with-http_gzip_static_module` is intended to determine if nginx, on the remote
 server, is compiled or not with the gzip_static module.
