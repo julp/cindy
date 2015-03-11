@@ -11,6 +11,7 @@ module Cindy
 
     class Cindy
 
+        # Default location of Cindy's configuration file
         CONFIGURATION_FILE = File.expand_path '~/.cindy'
 
         module DSL
@@ -61,17 +62,30 @@ module Cindy
             end
         end
 
+        # DSL
+        # \@!method environment(envname, uri = nil)
+        # \@!method template(tplname, path, &block)
+
+        # Creates an "empty" Cindy object
         def initialize
             @environments = {}
             @templates = {}
         end
 
+        # Creates a Cindy object from a string
+        #
+        # @param string [String] the configuration string to evaluate
+        # @return [Cindy]
         def self.from_string(string)
             cindy = Cindy.new
             DSL::CindyNode.new(cindy).instance_eval string
             cindy
         end
 
+        # Creates a Cindy object from a file
+        #
+        # @param filename [String] the file to evaluate ; default location {CONFIGURATION_FILE} is used if nil
+        # @return [Cindy]
         def self.load(filename = nil)
             @filename = filename || CONFIGURATION_FILE
             cindy = Cindy.new
@@ -83,36 +97,65 @@ module Cindy
             (@environments.values.map(&:to_s) + [''] + @templates.values.map(&:to_s)).join("\n")
         end
 
+        # Get known environments
+        #
+        # @return [Array<Symbol>] list of environment names
         def environments
             @environments.values
         end
 
+        # Does environment exist?
+        #
+        # @param envname [String, Symbol] the name of the environment to check for existence
         def has_environment?(envname)
             envname = envname.intern
             @environments.key? envname
         end
 
+        # Add a new environment
+        #
+        # @param envname [String, Symbol] the name of the new environment
+        # @param attributes [String] the uri of the host (eg 'ssh://user@1.2.3.4/' for a
+        # remote one or 'file:///' to work directely on actual host)
+        # @return [Environment] the registered environment
         def environment_add(envname, attributes)
             envname = envname.intern
             # assert !@environments.key? envname
             @environments[envname] = Environment.new(envname, attributes)
         end
 
+        # Get registered templates
+        #
+        # @return [Array<Symbol>] list of template names
         def templates
             @templates.values
         end
 
+        # Does template exist?
+        #
+        # @param tplname [String, Symbol] the name of the template to check for existence
         def has_template?(tplname)
             tplname = tplname.intern
             @templates.key? tplname
         end
 
+        # Add a new template
+        #
+        # @param tplname [String, Symbol] the name of the new template
+        # @param file [String] the location of the template file
+        # @return [Template] the registered template
         def template_add(tplname, file)
             tplname = tplname.intern
             # assert !@templates.key? name
             @templates[tplname] = Template.new File.expand_path(file), tplname
         end
 
+        # Print on stdout the result of template generation
+        #
+        # @param envname [String, Symbol] the name of the environment
+        # @param tplname [String, Symbol] the name of the template
+        # @raise [UndefinedEnvironmentError] if environment does not exist
+        # @raise [UndefinedTemplateError] if template does not exist
         def template_environment_print(envname, tplname)
             envname = envname.intern
             tplname = tplname.intern
@@ -121,6 +164,12 @@ module Cindy
             @templates[tplname].print @environments[envname]
         end
 
+        # Deploy the result of template generation on the given environment
+        #
+        # @param envname [String, Symbol] the name of the environment
+        # @param tplname [String, Symbol] the name of the template
+        # @raise [UndefinedEnvironmentError] if environment does not exist
+        # @raise [UndefinedTemplateError] if template does not exist
         def template_environment_deploy(envname, tplname)
             envname = envname.intern
             tplname = tplname.intern
@@ -129,6 +178,12 @@ module Cindy
             @templates[tplname].deploy @environments[envname]
         end
 
+        # Print on stdout a detail (value and scope) of applicable variables
+        #
+        # @param envname [String, Symbol] the name of the environment
+        # @param tplname [String, Symbol] the name of the template
+        # @raise [UndefinedEnvironmentError] if environment does not exist
+        # @raise [UndefinedTemplateError] if template does not exist
         def template_environment_variables(envname, tplname)
             envname = envname.intern
             tplname = tplname.intern
