@@ -2,8 +2,8 @@ require 'open3'
 
 module Cindy
     module Executor
-        class Local
-            def exec(command, stdin_str = nil, status_only = false)
+        class Local < Base
+            def exec_imp(command, stdin_str)
                 exit_status = 1
                 stdout_str = stderr_str = ''
                 Open3.popen3({ 'PATH' => "#{ENV['PATH']}:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin" }, command) do |stdin, stdout, stderr, wait_thr|
@@ -13,16 +13,9 @@ module Cindy
                     end
                     stdout_str = stdout.read
                     stderr_str = stderr.read
-                    exit_status = wait_thr.value
+                    exit_status = wait_thr.value.exitstatus
                 end
-# puts [ command, stderr_str, exit_status ].inspect
-                raise Exception.new if 0 != exit_status && !stderr_str.empty?
-                return nil if status_only && 0 != exit_status
-                stdout_str.chomp
-            end
-
-            def close
-                # NOP
+                [ stdout_str, stderr_str, exit_status ]
             end
         end
     end

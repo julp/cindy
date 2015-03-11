@@ -1,3 +1,5 @@
+require 'logger'
+
 module Cindy
 
     class UndefinedEnvironmentError < ::NameError
@@ -66,10 +68,14 @@ module Cindy
         # \@!method environment(envname, uri = nil)
         # \@!method template(tplname, path, &block)
 
+        # @return [Logger] the logger associated to the cindy instance
+        attr_accessor :logger
+
         # Creates an "empty" Cindy object
         def initialize
             @environments = {}
             @templates = {}
+            @logger = Logger.new STDERR
         end
 
         # Creates a Cindy object from a string
@@ -147,7 +153,7 @@ module Cindy
         def template_add(tplname, file)
             tplname = tplname.intern
             # assert !@templates.key? name
-            @templates[tplname] = Template.new File.expand_path(file), tplname
+            @templates[tplname] = Template.new self, File.expand_path(file), tplname
         end
 
         # Print on stdout the result of template generation

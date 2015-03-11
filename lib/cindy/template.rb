@@ -7,7 +7,8 @@ module Cindy
 
         attr_reader :file, :alias, :paths, :defvars, :envvars
 
-        def initialize(file, name)
+        def initialize(owner, file, name)
+            @owner = owner # owner is Cindy objet
             @file = file # local template filename
             @alias = name
             @paths = {}   # remote filenames (<environment name> => <filename>)
@@ -97,9 +98,9 @@ private
             uri = URI.parse(env.uri)
             case uri.scheme
                 when nil, 'file'
-                    Executor::Local.new
+                    Executor::Local.new @owner.logger
                 when 'ssh'
-                    Executor::SSH.new Net::SSH.start(uri.host, uri.user)
+                    Executor::SSH.new Net::SSH.start(uri.host, uri.user), @owner.logger
                 else
                     raise Exception.new 'Unexpected protocol'
             end

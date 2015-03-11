@@ -1,3 +1,5 @@
+### Changes from 0.1.0 to ?.?.?
+
 ### Changes from 0.0.1 to 0.1.0
 
 * configuration format changed (XML => Ruby)

@@ -1,7 +1,8 @@
 module Cindy
     class Command
-        def initialize(command)
+        def initialize(command, options = {})
             @command = command
+            @options = options
         end
 
         def to_s
@@ -9,11 +10,11 @@ module Cindy
         end
 
         def inspect
-            "#{self.class.name}.new(#{@command.inspect})"
+            "#{self.class.name}.new(#{@command.inspect}, TODO)"
         end
 
         def call(executor)
-            executor.exec(@command, nil, true)
+            executor.exec(@command, @options)
         end
     end
 end
