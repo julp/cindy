@@ -26,6 +26,7 @@ Dependencies: net-ssh, highline
 ## Example
 
 Create ~/.cindy as follows:
+
 ```ruby
 # create 2 environments named "production" and "development"
 environment :development, 'file:///'
@@ -54,6 +55,7 @@ end
 ```
 
 And ~/cindy/templates/nginx.conf.tpl as:
+
 ```
 # <%= _install_file_ %>
 
@@ -72,6 +74,7 @@ server {
 ```
 
 Running `cindy template nginx environment production print`, result in:
+
 ```
 # /usr/local/etc/nginx.conf
 
@@ -85,6 +88,7 @@ server {
 (if we admit that nginx is built, on production environment, with Gzip Precompression module)
 
 After `cindy template nginx environment production deploy`, output of `ls -l /etc/nginx.conf*` is:
+
 ```
 lrwxrwxrwx [...] /usr/local/etc/nginx.conf -> /usr/local/etc/nginx.conf.201502262311
 -rw-r--r-- [...] /usr/local/etc/nginx.conf.201502262209                              # file at previous deployment
