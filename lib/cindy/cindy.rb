@@ -23,6 +23,10 @@ module Cindy
                     @envname = envname
                 end
 
+                def cmd(command, options = { check_status_only: true })
+                    Command.new command, options
+                end
+
                 def var(varname, value)
                     @tpl.set_variable @envname, varname, value
                 end
@@ -33,6 +37,10 @@ module Cindy
             class TemplateNode
                 def initialize(tpl)
                     @tpl = tpl
+                end
+
+                def cmd(command, options = { check_status_only: true })
+                    Command.new command, options
                 end
 
                 def var(varname, value)
