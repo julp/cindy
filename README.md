@@ -29,7 +29,7 @@ Create ~/.cindy as follows:
 
 ```ruby
 # create 2 environments named "production" and "development"
-environment :development, 'file:///'
+environment :development
 environment :production, 'ssh://root@www.xxx.tld/'
 
 # register the template ~/cindy/templates/nginx.conf.tpl (see below) for our nginx configuration

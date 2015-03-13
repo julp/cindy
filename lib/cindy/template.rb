@@ -1,5 +1,4 @@
 require 'erb'
-require 'uri'
 require 'ostruct'
 
 module Cindy
@@ -95,15 +94,7 @@ module Cindy
 private
 
         def executor_for_env(env)
-            uri = URI.parse(env.uri)
-            case uri.scheme
-                when nil, 'file'
-                    Executor::Local.new @owner.logger
-                when 'ssh'
-                    Executor::SSH.new Net::SSH.start(uri.host, uri.user), @owner.logger
-                else
-                    raise Exception.new 'Unexpected protocol'
-            end
+            Executor::Base.from_uri env.uri, @owner.logger
         end
 
         def render(env, executor = nil)

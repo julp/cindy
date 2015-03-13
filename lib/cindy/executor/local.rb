@@ -1,8 +1,17 @@
+require 'uri'
 require 'open3'
 
 module Cindy
     module Executor
         class Local < Base
+            def self.handle?(uri)
+                [ nil, 'file' ].include? uri.scheme
+            end
+
+            def initialize(uri, logger)
+                super logger
+            end
+
             def exec_imp(command, stdin_str)
                 exit_status = 1
                 stdout_str = stderr_str = ''

@@ -66,14 +66,14 @@ module Cindy
                     tpl
                 end
 
-                def environment(envname, uri = nil)
+                def environment(envname, uri = '')
                     @cindy.environment_add envname, uri
                 end
             end
         end
 
         # DSL
-        # \@!method environment(envname, uri = nil)
+        # \@!method environment(envname, uri = '')
         # \@!method template(tplname, path, &block)
 
         # @return [Logger] the logger associated to the cindy instance

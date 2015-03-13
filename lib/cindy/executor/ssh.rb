@@ -1,10 +1,15 @@
+require 'uri'
 require 'net/ssh'
 
 module Cindy
     module Executor
         class SSH < Base
-            def initialize(cnx, logger)
-                @cnx = cnx
+            def self.handle?(uri)
+                'ssh' == uri.scheme
+            end
+
+            def initialize(uri, logger)
+                @cnx = Net::SSH.start(uri.host, uri.user)
                 super logger
             end
 

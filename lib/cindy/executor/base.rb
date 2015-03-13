@@ -1,3 +1,5 @@
+require 'uri'
+
 module Cindy
     module Executor
         class CommandFailedError < StandardError
@@ -9,6 +11,11 @@ module Cindy
             # @param [Logger] logger
             def initialize(logger)
                 @logger = logger
+            end
+
+            def self.from_uri(uri, logger)
+                uri = URI.parse(uri)
+                ObjectSpace.each_object(Class).select { |v| v.ancestors.include?(self) && v.handle?(uri) }.first.new(uri, logger) or raise Exception.new 'Unexpected protocol'
             end
 
             # Executes the given command
@@ -45,6 +52,11 @@ module Cindy
             end
 
 protected
+
+            # @abstract
+            def self.handle?(uri)
+                false
+            end
 
             # @abstract
             # @param command [String] the command to execute
