@@ -1,10 +1,11 @@
 require 'erb'
 require 'ostruct'
+require 'shellwords'
 
 module Cindy
     class Template
 
-        attr_reader :file, :alias, :paths, :defvars, :envvars
+        attr_reader :file, :alias, :paths, :defvars, :envvars, :postcmds
 
         def initialize(owner, file, name)
             @owner = owner # owner is Cindy objet
@@ -13,6 +14,7 @@ module Cindy
             @paths = {}   # remote filenames (<environment name> => <filename>)
             @defvars = {} # default/global variables
             @envvars = {} # environment specific variables
+            @postcmds = [] # commands to run after deployment
         end
 
         IDENT_STRING = ' ' * 4
@@ -38,6 +40,10 @@ module Cindy
             puts render(env)
         end
 
+        def add_postcmd(cmd, options)
+            @postcmds << cmd
+        end
+
         def deploy(env)
             executor = executor_for_env env
             remote_filename = @paths[env.name]
@@ -47,6 +53,12 @@ module Cindy
             executor.exec("[ -e \"#{remote_filename}\" ] && [ ! -h \"#{remote_filename}\" ] && #{sudo} mv -i \"#{remote_filename}\" \"#{remote_filename}.pre\"", ignore_failure: true)
             executor.exec("#{sudo} tee #{remote_filename}.#{suffix} > /dev/null", stdin: render(env, executor))
             executor.exec("#{sudo} ln -snf \"#{remote_filename}.#{suffix}\" \"#{remote_filename}\"")
+            shell = executor.exec('ps -p $$ -ocomm=')
+            env = { 'INSTALL_FILE' => remote_filename }
+            env_string = env.inject([]) { |a, b| a << b.map(&:shellescape).join('=') }.join(' ')
+            @postcmds.each do |cmd|
+                executor.exec("#{sudo} #{'env' if shell =~ /csh\z/} #{env_string} sh -c '#{cmd}'") # TODO: escape single quotes in cmd?
+            end
             executor.close
         end
 
