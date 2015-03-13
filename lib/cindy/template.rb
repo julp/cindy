@@ -46,7 +46,7 @@ module Cindy
             sudo = 'sudo ' unless 0 == executor.exec('id -u').to_i
             suffix = executor.exec('date \'+%Y%m%d%H%M\'') # use remote - not local - time machine
             executor.exec("[ -e \"#{remote_filename}\" ] && [ ! -h \"#{remote_filename}\" ] && #{sudo} mv -i \"#{remote_filename}\" \"#{remote_filename}.pre\"")
-            executor.exec("#{sudo} tee #{remote_filename}.#{suffix} > /dev/null", render(env, executor))
+            executor.exec("#{sudo} tee #{remote_filename}.#{suffix} > /dev/null", stdin: render(env, executor))
             executor.exec("#{sudo} ln -snf \"#{remote_filename}.#{suffix}\" \"#{remote_filename}\"")
             executor.close
         end
