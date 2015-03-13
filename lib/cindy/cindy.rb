@@ -122,7 +122,7 @@ module Cindy
         #
         # @param envname [String, Symbol] the name of the new environment
         # @param attributes [String] the uri of the host (eg 'ssh://user@1.2.3.4/' for a
-        # remote one or 'file:///' to work directely on actual host)
+        #  remote one or 'file:///' to work directely on actual host)
         # @return [Environment] the registered environment
         def environment_add(envname, attributes)
             envname = envname.intern
@@ -148,7 +148,9 @@ module Cindy
         # Add a new template
         #
         # @param tplname [String, Symbol] the name of the new template
-        # @param file [String] the location of the template file
+        # @param file [String] the location of the template file. Note it is expanded
+        #  ({File#expand_path}) to permit usage of ~ so it may be a good idea to avoid
+        #  relative paths
         # @return [Template] the registered template
         def template_add(tplname, file)
             tplname = tplname.intern
