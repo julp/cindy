@@ -15,7 +15,8 @@ module Cindy
 
             def self.from_uri(uri, logger)
                 uri = URI.parse(uri)
-                ObjectSpace.each_object(Class).select { |v| v.ancestors.include?(self) && v.handle?(uri) }.first.new(uri, logger) or raise Exception.new 'Unexpected protocol'
+                ObjectSpace.each_object(Class).select { |v| return v.new(uri, logger) if v.ancestors.include?(self) && v.handle?(uri) }
+                raise Exception.new 'Unexpected protocol'
             end
 
             # Executes the given command
