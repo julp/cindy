@@ -27,7 +27,7 @@ module Cindy
                         channel.on_request 'exit-status' do |ch, data|
                             exit_status = data.read_long
                         end
-                        channel.send_data stdin_str if stdin_str
+                        channel.send_data stdin_str.force_encoding('ASCII-8BIT') if stdin_str
                         channel.eof!
                     end
                 end
