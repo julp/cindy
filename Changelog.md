@@ -1,4 +1,8 @@
-### Changes from 0.1.0 to ?.?.?
+### Changes from 0.1.1 to ?.?.?
+
+### Changes from 0.1.0 to 0.1.1
+
+* force encoding to ASCII-8BIT of data send to stdin through ssh
 
 ### Changes from 0.0.1 to 0.1.0
 
