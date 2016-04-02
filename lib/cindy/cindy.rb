@@ -23,7 +23,7 @@ module Cindy
                     @envname = envname
                 end
 
-                def cmd(command, options = { check_status_only: true })
+                def cmd(command, options = {})
                     Command.new command, options
                 end
 
@@ -39,7 +39,7 @@ module Cindy
                     @tpl = tpl
                 end
 
-                def cmd(command, options = { check_status_only: true })
+                def cmd(command, options = {})
                     Command.new command, options
                 end
 

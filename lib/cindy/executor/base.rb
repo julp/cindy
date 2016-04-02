@@ -29,6 +29,7 @@ module Cindy
             # @option options [Boolean] :check_status_only simply return true if the command is successful else false
             # @return [String, Boolean]
             def exec(command, options = {})
+=begin
                 stdout, stderr, status = exec_imp command, options[:stdin]
                 stdout.chomp!
                 # <logging>
@@ -44,12 +45,39 @@ module Cindy
                 # </logging>
                 return status.zero? if options[:check_status_only]
                 raise CommandFailedError.new "Command '#{command}' failed" if !options[:ignore_failure] && 0 != status
+=end
+                stdout, stderr, status = exec_and_log command, options
+                # ?!?
+                stdout
+            end
+
+            def exec!(command, options = {})
+                stdout, stderr, status = exec_and_log command, options
+                raise CommandFailedError.new "Command '#{command}' failed" unless 0 == status
                 stdout
             end
 
             # Close the eventual underlaying connection
             def close
                 # NOP
+            end
+
+private
+
+            def exec_and_log(command, options = {})
+                stdout, stderr, status = exec_imp command, options[:stdin]
+                stdout.chomp!
+                # <logging>
+                if status.zero?
+                    if stdout.empty?
+                        @logger.info 'Command "%s" executed successfully' % command
+                    else
+                        @logger.info 'Command "%s" executed successfully (with "%s" returned)' % [ command, stdout ]
+                    end
+                else
+                    @logger.send(options[:ignore_failure] ? :warn : :error, 'Command "%s" failed with "%s"' % [ command, stderr ])
+                end
+                [ stdout, stderr, status ]
             end
 
 protected

@@ -5,7 +5,7 @@ class LocalExecutorTest < Minitest::Test
 
     def test_local_executor
         logger = Logger.new File.open('/dev/null', File::WRONLY)
-        locexec = Cindy::Executor::Local.new logger
+        locexec = Cindy::Executor::Local.new nil, logger
         # unknown command
         assert_raises Cindy::Executor::CommandFailedError do
             locexec.exec "eko foo"
