@@ -4,7 +4,7 @@ Tired to modify your configuration files depending on the targeted host? Turn th
 
 The purpose is to implement a kind of shell with limited dependencies to automate configuration and deployment on various (Unix) environments.
 
-Dependencies: net-ssh, highline
+Dependencies: net-ssh, highline, thor
 
 ## Installation
 
@@ -12,16 +12,11 @@ Dependencies: net-ssh, highline
 
 ## Usage of cindy command
 
-* reload                        => force Cindy to reload its configuration file
-* environment (shortcut: env)
-    * list                      => list all known environments
-* template (shortcut: tpl)
-    * list                      => list all known templates
-    * \<name>
-        * environment \<name>
-            * deploy            => install the generated file on the given environment
-            * print             => display output configuration file as it would be deployed on the given environment
-            * details           => list all applicable variables to the given template, their values and scopes
+`cindy templates`: list all known templates
+`cindy environments`: list all known environments
+`cindy deploy -t \<template> -e \<environment>`: install the generated file on the given environment
+`cindy variables -t \<template> -e \<environment>`: list all applicable variables to the given template, their values and scopes
+`cindy print -t \<template> -e \<environment>`: display output configuration file as it would be deployed on the given environment
 
 ## Example
 

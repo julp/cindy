@@ -1,5 +1,7 @@
 ### Changes from 0.1.1 to ?.?.?
 
+* handle CLI (arguments) with Thor
+
 ### Changes from 0.1.0 to 0.1.1
 
 * force encoding to ASCII-8BIT of data send to stdin through ssh
