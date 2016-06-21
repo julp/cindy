@@ -19,7 +19,7 @@ module Cindy
             RUBY
         end
 
-        desc "", ""
+        desc "templates", "List registered templates"
         def templates
             @cindy = Cindy.load ENV['CINDY_CONF']
             @cindy.templates.each do |tpl|
@@ -27,7 +27,7 @@ module Cindy
             end
         end
 
-        desc "", ""
+        desc "environments", "List known environments"
         def environments
             @cindy = Cindy.load ENV['CINDY_CONF']
             @cindy.environments.each do |env|

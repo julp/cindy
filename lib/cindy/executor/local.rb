@@ -4,6 +4,7 @@ require 'open3'
 module Cindy
     module Executor
         class Local < Base
+
             def self.handle?(uri)
                 [ nil, 'file' ].include? uri.scheme
             end
@@ -30,6 +31,7 @@ module Cindy
                 end
                 [ stdout_str, stderr_str, exit_status ]
             end
+
         end
     end
 end

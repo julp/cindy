@@ -1,6 +1,7 @@
 ### Changes from 0.1.1 to ?.?.?
 
 * handle CLI (arguments) with Thor
+* add a global/root scope: variables can also be defined at top level
 
 ### Changes from 0.1.0 to 0.1.1
 

@@ -8,13 +8,10 @@ module Cindy
             @name = name
         end
 
-        def to_s
-            "environment :#{@name}, #{@uri.inspect}"
-        end
-
         def update(attributes)
             @uri = attributes['uri'] if attributes['uri']
             @name = attributes['name'] if attributes['name']
         end
+
     end
 end

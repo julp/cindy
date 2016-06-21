@@ -11,67 +11,52 @@ module Cindy
     class AlreadyExistsError < ::NameError
     end
 
-    class Cindy
+    class Cindy < Scope
 
         # Default location of Cindy's configuration file
         CONFIGURATION_FILE = File.expand_path '~/.cindy'
 
         module DSL
-            class TemplateEnvironmentNode
-                def initialize(tpl, envname)
-                    @tpl = tpl
-                    @envname = envname
+            class Node
+                def initialize(parent)
+                    @parent = parent
                 end
 
                 def cmd(command, options = {})
                     Command.new command, options
                 end
 
-                def var(varname, value)
-                    @tpl.set_variable @envname, varname, value
+                def var(name, value)
+                    @parent.set_variable(name, value)
                 end
 
                 alias_method :variable, :var
             end
 
-            class TemplateNode
-                def initialize(tpl)
-                    @tpl = tpl
-                end
+            class TemplateEnvironmentNode < Node
+            end
 
-                def cmd(command, options = {})
-                    Command.new command, options
-                end
-
-                def var(varname, value)
-                    @tpl.set_variable nil, varname, value
-                end
-
-                alias_method :variable, :var
-
+            class TemplateNode < Node
                 def on(envname, file, &block)
-                    @tpl.set_path_for_environment envname, file
-                    TemplateEnvironmentNode.new(@tpl, envname).instance_eval &block if block_given?
+                    tplenv = @parent.define_environment(envname, file) # @parent.parent.environment[envname]
+                    TemplateEnvironmentNode.new(tplenv).instance_eval(&block) if block_given?
+                    tplenv
                 end
 
                 def postcmd(cmd, options = {})
-                    @tpl.add_postcmd cmd, options
+                    @parent.add_postcmd cmd, options
                 end
             end
 
-            class CindyNode
-                def initialize(cindy)
-                    @cindy = cindy
-                end
-
+            class RootNode < Node
                 def template(tplname, path, &block)
-                    tpl = @cindy.template_add tplname, path
-                    TemplateNode.new(tpl).instance_eval &block
+                    tpl = @parent.template_add(tplname, path)
+                    TemplateNode.new(tpl).instance_eval(&block)
                     tpl
                 end
 
                 def environment(envname, uri = '')
-                    @cindy.environment_add envname, uri
+                    @parent.environment_add(envname, uri)
                 end
             end
         end
@@ -85,6 +70,7 @@ module Cindy
 
         # Creates an "empty" Cindy object
         def initialize
+            super
             @environments = {}
             @templates = {}
             @logger = Logger.new STDERR
@@ -96,7 +82,7 @@ module Cindy
         # @return [Cindy]
         def self.from_string(string)
             cindy = Cindy.new
-            DSL::CindyNode.new(cindy).instance_eval string
+            DSL::RootNode.new(cindy).instance_eval string
             cindy
         end
 
@@ -107,12 +93,8 @@ module Cindy
         def self.load(filename = nil)
             @filename = filename || CONFIGURATION_FILE
             cindy = Cindy.new
-            DSL::CindyNode.new(cindy).instance_eval(File.read(@filename), File.basename(@filename), 0)
+            DSL::RootNode.new(cindy).instance_eval(File.read(@filename), File.basename(@filename), 0)
             cindy
-        end
-
-        def to_s
-            (@environments.values.map(&:to_s) + [''] + @templates.values.map(&:to_s)).join("\n")
         end
 
         # Get known environments
@@ -167,7 +149,7 @@ module Cindy
         def template_add(tplname, file)
             tplname = tplname.intern
             # assert !@templates.key? name
-            @templates[tplname] = Template.new self, File.expand_path(file), tplname
+            @templates[tplname] = Template.new(self, File.expand_path(file), tplname)
         end
 
         # Print on stdout the result of template generation

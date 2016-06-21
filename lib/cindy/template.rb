@@ -3,37 +3,21 @@ require 'ostruct'
 require 'shellwords'
 
 module Cindy
-    class Template
+    class Template < Scope
 
-        attr_reader :file, :alias, :paths, :defvars, :envvars, :postcmds
+        attr_reader :file, :alias, :postcmds
 
-        def initialize(owner, file, name)
-            @owner = owner # owner is Cindy objet
+        def initialize(cindy, file, name)
+            super cindy
             @file = file # local template filename
             @alias = name
-            @paths = {}   # remote filenames (<environment name> => <filename>)
-            @defvars = {} # default/global variables
-            @envvars = {} # environment specific variables
+            @tplenv = {}
             @postcmds = [] # commands to run after deployment
         end
 
-        IDENT_STRING = ' ' * 4
-
-        def to_s
-            ret = ["template :#{@alias}, #{@file.inspect} do"]
-            @defvars.each_pair do |k,v|
-                ret << "#{IDENT_STRING * 1}var :#{k}, #{v.inspect}"
-            end
-            @paths.each_pair do |ke,ve|
-               ret << "#{IDENT_STRING * 1}on :#{ke}, #{ve.inspect} do"
-               @envvars[ke].each_pair do |kv,vv|
-                   ret << "#{IDENT_STRING * 2}var :#{kv}, #{vv.inspect}"
-               end
-               ret << "#{IDENT_STRING * 1}end"
-            end
-            ret << "end"
-            ret << ''
-            ret.join "\n"
+        def define_environment(envname, file)
+            envname = envname.intern
+            @tplenv[envname] = TplEnv.new(self, file)
         end
 
         def print(env)
@@ -46,9 +30,11 @@ module Cindy
 
         def deploy(env)
             executor = executor_for_env env
-            remote_filename = @paths[env.name]
+            remote_filename = @tplenv[env.name].path
+            # TODO: run commands in a sh subshell (we still need to able to get exit value and std(in|out|err) of those subcommands)
             sudo = ''
             sudo = 'sudo' unless 0 == executor.exec('id -u').to_i
+#             sudo = 'su - root -c \'' unless 0 == executor.exec('id -u').to_i # to do without sudo on *BSD
             suffix = executor.exec('date \'+%Y%m%d%H%M\'') # use remote - not local - time machine
             executor.exec("[ -e \"#{remote_filename}\" ] && [ ! -h \"#{remote_filename}\" ] && #{sudo} mv -i \"#{remote_filename}\" \"#{remote_filename}.pre\"")
             executor.exec("#{sudo} tee #{remote_filename}.#{suffix} > /dev/null", stdin: render(env, executor))
@@ -58,73 +44,32 @@ module Cindy
             env_string = env.inject([]) { |a, b| a << b.map(&:shellescape).join('=') }.join(' ')
             @postcmds.each do |cmd|
                 executor.exec("#{sudo} #{'env' if shell =~ /csh\z/} #{env_string} sh -c '#{cmd}'") # TODO: escape single quotes in cmd?
+                # TODO: continue or not on command failure
             end
             executor.close
         end
 
-#         def variables
-#             (@defvars.keys + @envvars.collect { |v| v[1].keys }.flatten).uniq
-#         end
-
         def list_variables(envname)
-            @defvars.merge(@envvars[envname]).each_pair do |k,v|
-                puts "- #{k}#{' (default)' unless @envvars[envname].key? k } = #{v} (#{v.class.name})"
-            end
-        end
-
-#         def unset_variable(varname)
-#             @defvars.delete varname
-#             @envvars.each_value do |h|
-#                 h.delete varname
+            raise NotImplemented.new
+#             @defvars.merge(@envvars[envname]).each_pair do |k,v|
+#                 puts "- #{k}#{' (default)' unless @envvars[envname].key? k } = #{v} (#{v.class.name})"
 #             end
-#         end
-
-#         def rename_variable(oldvarname, newvarname)
-#             @defvars[newvarname] = value if value = @defvars.delete(oldvarname)
-#             @envvars.each_value do |h|
-#                 h[newvarname] = value if value = h.delete(oldvarname)
-#             end
-#         end
-
-        def set_variable(envname, varname, value)
-            envname = envname.intern if envname
-            varname = varname.intern
-            STDERR.puts "[ WARN ] non standard variable name found" unless varname =~ /\A[a-z][a-z0-9_]*\z/
-            if envname
-                @envvars[envname][varname] = value
-            else
-                @defvars[varname] = value
-            end
-        end
-
-        def set_path_for_environment(envname, path)
-            envname = envname.intern
-            @paths[envname] = path
-            @envvars[envname] ||= {}
         end
 
 private
 
         def executor_for_env(env)
-            Executor::Base.from_uri env.uri, @owner.logger
+            Executor::Base.from_uri env.uri, @parent.logger
         end
 
         def render(env, executor = nil)
             close_executor = executor.nil?
             executor ||= executor_for_env(env)
 #             shell = executor.exec('ps -p $$ -ocomm=')
-            vars = Hash[
-                @defvars.merge(@envvars[env.name]).map do |k, v|
-                    if v.respond_to? :call
-                        [ k, v.call(executor) ]
-                    else
-                        [ k, v ]
-                    end
-                end
-            ]
+            vars = @tplenv[env.name].scope(executor)
             # ||= to not overwrite a previously user defined variable with the same name
-            vars['_install_file_'] ||= @paths[env.name]
-            vars['_install_dir_'] ||= File.dirname @paths[env.name]
+            vars['_install_file_'] ||= @tplenv[env.name].path
+            vars['_install_dir_'] ||= File.dirname @tplenv[env.name].path
             erb = ERB.new(File.read(@file), 0, '-')
             executor.close if close_executor
             erb.result(OpenStruct.new(vars).instance_eval { binding })
