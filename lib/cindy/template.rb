@@ -49,11 +49,17 @@ module Cindy
             executor.close
         end
 
+        IDENT_STRING = ' ' * 4
+
         def list_variables(envname)
-            raise NotImplemented.new
-#             @defvars.merge(@envvars[envname]).each_pair do |k,v|
-#                 puts "- #{k}#{' (default)' unless @envvars[envname].key? k } = #{v} (#{v.class.name})"
-#             end
+            envname = envname.intern
+            @tplenv[envname].trace.each do |k,a|
+                puts "- #{k}"
+                a.each_with_index do |s,i|
+                    v = s.get_variable k
+                    puts "#{IDENT_STRING * (i + 1)}+ #{s.class.name} = #{v} (#{v.class.name})"
+                end
+            end
         end
 
 private

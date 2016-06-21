@@ -36,6 +36,23 @@ module Cindy
             variables
         end
 
+        def trace
+            scopes = []
+            variables = {}
+            parent = self
+            while parent
+                scopes << parent
+                parent = parent.parent
+            end
+            scopes.each do |s|
+                s.variables.each do |k, v|
+                    variables[k] ||= []
+                    variables[k] << s
+                end
+            end
+            variables
+        end
+
 protected
 
         def parent
