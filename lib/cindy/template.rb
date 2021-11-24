@@ -77,6 +77,7 @@ private
             vars['_install_file_'] ||= @tplenv[env.name].path
             vars['_install_dir_'] ||= File.dirname @tplenv[env.name].path
             erb = ERB.new(File.read(@file), 0, '-')
+            erb.filename = @file
             executor.close if close_executor
             erb.result(OpenStruct.new(vars).instance_eval { binding })
         end
