@@ -31,7 +31,7 @@ module Cindy
         def deploy(env)
             executor = executor_for_env env
             remote_filename = @tplenv[env.name].path
-            # TODO: run commands in a sh subshell (we still need to able to get exit value and std(in|out|err) of those subcommands)
+            # TODO: run commands in a sh subshell (we still need to be able to get exit value and std(in|out|err) of those subcommands)
             sudo = ''
             sudo = 'sudo' unless 0 == executor.exec('id -u').to_i
 #             sudo = 'su - root -c \'' unless 0 == executor.exec('id -u').to_i # to do without sudo on *BSD
@@ -74,6 +74,9 @@ private
 #             shell = executor.exec('ps -p $$ -ocomm=')
             vars = @tplenv[env.name].scope(executor)
             # ||= to not overwrite a previously user defined variable with the same name
+            @parent.environments.each do |e|
+                vars[e.name.to_s + '?'] ||= (e == env)
+            end
             vars['_install_file_'] ||= @tplenv[env.name].path
             vars['_install_dir_'] ||= File.dirname @tplenv[env.name].path
             erb = ERB.new(File.read(@file), 0, '-')
