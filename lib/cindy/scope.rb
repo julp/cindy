@@ -11,7 +11,7 @@ module Cindy
         end
 
         def set_variable(name, value)
-            STDERR.puts "[ WARN ] non standard variable name found" unless name =~ /\A[a-z][a-z0-9_]*\z/
+            STDERR.puts "[ WARN ] non standard variable name found" unless name =~ /\A[a-z][a-z0-9_]*[?]?\z/
             @variables[name.intern] = value
         end
 
