@@ -99,7 +99,7 @@ module Cindy
 
         # Get known environments
         #
-        # @return [Array<Symbol>] list of environment names
+        # @return [Array<Environment>] list of environment
         def environments
             @environments.values
         end
